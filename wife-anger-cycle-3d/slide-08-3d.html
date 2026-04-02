@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:1080px;background:#FFF9F0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#2C3E50;overflow:hidden;position:relative}
+body{display:flex;flex-direction:column;align-items:center;min-height:1440px;height:1440px;justify-content:space-between;width:1080px;background:#FFF9F0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#2C3E50;overflow:hidden;position:relative};min-height:1440px;height:1440px;justify-content:space-between;
 /* Green recovery glow top-left */
 body::before{content:'';position:absolute;top:-150px;left:-150px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(76,175,80,.18) 0%,transparent 70%);pointer-events:none}
 /* Warm light bottom-right */
@@ -17,7 +17,7 @@ h2{font-size:70px;font-weight:900;text-shadow:4px 4px 0 rgba(0,0,0,.1),8px 8px 0
 .highlight{color:#F44336;font-weight:bold}
 .green{color:#4CAF50;font-weight:bold}
 svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
-.foot{position:static;padding-top:20px;font-size:24px;color:#7F8C8D}
+.foot{position:fixed;bottom:28px;left:0;right:0;text-align:center;font-size:24px;color:#7F8C8D;z-index:10}
 
 /* SVG diagram with depth */
 .svg-stage{perspective:800px;margin-top:14px}

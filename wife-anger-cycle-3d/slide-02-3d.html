@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:1080px;background:#FFF9F0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#2C3E50;overflow:hidden;position:relative}
+body{display:flex;flex-direction:column;align-items:center;min-height:1440px;justify-content:center;height:1440px;justify-content:center;width:1080px;background:#FFF9F0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#2C3E50;overflow:hidden;position:relative}
 /* Warm ambient light top-left */
 body::before{content:'';position:absolute;top:-200px;left:-200px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(255,180,100,.2) 0%,transparent 70%);pointer-events:none}
 /* Subtle dark bottom-right */
@@ -14,7 +14,7 @@ h2{font-size:72px;font-weight:900;text-shadow:4px 4px 0 rgba(0,0,0,.1),8px 8px 0
   box-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.8);
   border:1px solid rgba(0,0,0,.04);transform:perspective(600px) rotateY(-2deg);transition:transform .3s ease}
 .card::before{content:'';position:absolute;top:0;left:24px;right:24px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent)}
-.foot{position:static;padding-top:32px;font-size:28px;color:#7F8C8D}
+.foot{position:fixed;bottom:28px;left:0;right:0;text-align:center;font-size:24px;color:#7F8C8D;z-index:10}
 .divider{height:2px;background:linear-gradient(90deg,transparent,#2C3E50,transparent);opacity:.15;margin:36px 0 32px}
 .emoji-row{font-size:130px;text-align:center;margin:50px 0;filter:drop-shadow(0 20px 30px rgba(0,0,0,.15))}
 </style></head><body>
