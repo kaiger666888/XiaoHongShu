@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模板E：多层景深空间感</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; display: flex; gap: 60px; padding: 60px; justify-content: center; flex-wrap: wrap; font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .cover { width: 1080px; height: 1440px; position: relative; overflow: hidden; flex-shrink: 0; }
+  .label { color: #555; font-size: 13px; text-align: center; margin-top: 16px; letter-spacing: 2px; }
+
+  /* ========================================
+     VARIANTS — toggle via body class
+     ======================================== */
+  body.tech .cover--tech { display: block; }
+  body.tech .cover--growth { display: none; }
+  body.growth .cover--growth { display: block; }
+  body.growth .cover--tech { display: none; }
+
+  /* ========================================
+     SHARED: Background Layer (farthest)
+     ======================================== */
+  .bg-layer {
+    position: absolute; inset: 0; z-index: 1;
+  }
+  /* Atmospheric perspective: cool/desaturated far colors */
+  .cover--tech .bg-layer {
+    background: linear-gradient(170deg, #0b0d1a 0%, #101830 35%, #162040 60%, #0d1225 100%);
+  }
+  .cover--growth .bg-layer {
+    background: linear-gradient(170deg, #0a0608 0%, #1a0f12 35%, #201518 60%, #0e0810 100%);
+  }
+
+  /* Star particles via box-shadow */
+  .stars {
+    position: absolute; inset: 0; z-index: 2;
+  }
+  .stars::before, .stars::after {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 2px; height: 2px; border-radius: 50%;
+    background: transparent;
+  }
+  .stars::before {
+    box-shadow:
+      120px 80px 0 rgba(255,255,255,0.4),
+      340px 150px 0 rgba(255,255,255,0.25),
+      510px 60px 0 rgba(255,255,255,0.35),
+      720px 200px 0 rgba(255,255,255,0.2),
+      900px 100px 0 rgba(255,255,255,0.45),
+      200px 350px 0 rgba(255,255,255,0.15),
+      450px 300px 0 rgba(255,255,255,0.3),
+      680px 380px 0 rgba(255,255,255,0.2),
+      850px 280px 0 rgba(255,255,255,0.35),
+      100px 500px 0 rgba(255,255,255,0.25),
+      300px 450px 0 rgba(255,255,255,0.4),
+      550px 520px 0 rgba(255,255,255,0.15),
+      780px 480px 0 rgba(255,255,255,0.3),
+      950px 550px 0 rgba(255,255,255,0.2),
+      60px 700px 0 rgba(255,255,255,0.35),
+      250px 650px 0 rgba(255,255,255,0.2),
+      420px 720px 0 rgba(255,255,255,0.3),
+      650px 680px 0 rgba(255,255,255,0.15),
+      830px 750px 0 rgba(255,255,255,0.4),
+      980px 700px 0 rgba(255,255,255,0.25),
+      150px 850px 0 rgba(255,255,255,0.2),
+      370px 900px 0 rgba(255,255,255,0.35),
+      590px 830px 0 rgba(255,255,255,0.15),
+      750px 950px 0 rgba(255,255,255,0.3),
+      920px 880px 0 rgba(255,255,255,0.2),
+      80px 1050px 0 rgba(255,255,255,0.25),
+      280px 1100px 0 rgba(255,255,255,0.4),
+      500px 1080px 0 rgba(255,255,255,0.15),
+      700px 1150px 0 rgba(255,255,255,0.3),
+      870px 1050px 0 rgba(255,255,255,0.2);
+  }
+  .stars::after {
+    box-shadow:
+      180px 120px 1px rgba(255,255,255,0.15),
+      400px 90px 1px rgba(255,255,255,0.1),
+      630px 250px 1px rgba(255,255,255,0.12),
+      850px 160px 1px rgba(255,255,255,0.08),
+      50px 400px 1px rgba(255,255,255,0.1),
+      320px 550px 1px rgba(255,255,255,0.12),
+      580px 420px 1px rgba(255,255,255,0.08),
+      770px 600px 1px rgba(255,255,255,0.15),
+      960px 350px 1px rgba(255,255,255,0.1),
+      210px 750px 1px rgba(255,255,255,0.08),
+      480px 680px 1px rgba(255,255,255,0.12),
+      690px 800px 1px rgba(255,255,255,0.1),
+      140px 950px 1px rgba(255,255,255,0.15),
+      360px 1020px 1px rgba(255,255,255,0.08),
+      600px 960px 1px rgba(255,255,255,0.12);
+  }
+
+  /* Atmospheric haze / fog glow */
+  .atmo-haze {
+    position: absolute; inset: 0; z-index: 3;
+  }
+  .cover--tech .atmo-haze::before {
+    content: ''; position: absolute;
+    width: 800px; height: 800px;
+    top: -100px; right: -200px;
+    background: radial-gradient(circle, rgba(80,100,180,0.12) 0%, transparent 70%);
+    filter: blur(40px);
+  }
+  .cover--tech .atmo-haze::after {
+    content: ''; position: absolute;
+    width: 600px; height: 600px;
+    bottom: 200px; left: -150px;
+    background: radial-gradient(circle, rgba(60,80,140,0.1) 0%, transparent 70%);
+    filter: blur(60px);
+  }
+  .cover--growth .atmo-haze::before {
+    content: ''; position: absolute;
+    width: 700px; height: 700px;
+    top: 50px; left: -100px;
+    background: radial-gradient(circle, rgba(180,100,50,0.1) 0%, transparent 70%);
+    filter: blur(50px);
+  }
+  .cover--growth .atmo-haze::after {
+    content: ''; position: absolute;
+    width: 900px; height: 900px;
+    bottom: -200px; right: -200px;
+    background: radial-gradient(circle, rgba(140,60,40,0.08) 0%, transparent 70%);
+    filter: blur(60px);
+  }
+
+  /* ========================================
+     TECHNIQUE 4: Perspective Grid (bottom)
+     ======================================== */
+  .persp-grid {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 500px;
+    z-index: 4;
+    opacity: 0.06;
+    /* Vanishing point at bottom-center */
+    transform-origin: center bottom;
+  }
+  .persp-grid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      /* Horizontal lines converging to vanishing point */
+      linear-gradient(0deg,
+        transparent 0px,
+        rgba(255,255,255,0.5) 1px,
+        transparent 2px,
+        transparent 40px,
+        rgba(255,255,255,0.3) 41px,
+        transparent 42px,
+        transparent 80px,
+        rgba(255,255,255,0.15) 81px,
+        transparent 82px,
+        transparent 130px,
+        rgba(255,255,255,0.08) 131px,
+        transparent 132px
+      );
+    transform: perspective(400px) rotateX(60deg);
+    transform-origin: center bottom;
+  }
+  .persp-grid::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      /* Vertical converging lines */
+      linear-gradient(90deg,
+        rgba(255,255,255,0.3) 1px, transparent 2px,
+        transparent calc(50% - 1px), rgba(255,255,255,0.3) calc(50%), transparent calc(50% + 1px),
+        transparent calc(100% - 2px), rgba(255,255,255,0.3) calc(100% - 1px), transparent calc(100%)
+      );
+    clip-path: polygon(45% 100%, 55% 100%, 100% 0%, 0% 0%);
+  }
+
+  /* ========================================
+     TECHNIQUE 3: Background Bokeh (small)
+     ======================================== */
+  .bokeh-bg {
+    position: absolute; inset: 0; z-index: 5;
+    pointer-events: none;
+  }
+  .bokeh-bg .bk {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+  }
+  .cover--tech .bokeh-bg .bk {
+    border-color: rgba(100,140,220,0.15);
+    background: radial-gradient(circle, rgba(100,140,220,0.08) 0%, transparent 70%);
+  }
+  .cover--growth .bokeh-bg .bk {
+    border-color: rgba(220,160,80,0.15);
+    background: radial-gradient(circle, rgba(220,160,80,0.08) 0%, transparent 70%);
+  }
+  .bk:nth-child(1) { width: 60px; height: 60px; top: 15%; left: 70%; }
+  .bk:nth-child(2) { width: 40px; height: 40px; top: 25%; left: 15%; }
+  .bk:nth-child(3) { width: 50px; height: 50px; top: 40%; left: 80%; }
+  .bk:nth-child(4) { width: 35px; height: 35px; top: 55%; left: 10%; }
+  .bk:nth-child(5) { width: 45px; height: 45px; top: 65%; left: 85%; }
+  .bk:nth-child(6) { width: 30px; height: 30px; top: 75%; left: 25%; }
+  .bk:nth-child(7) { width: 55px; height: 55px; top: 10%; left: 45%; }
+  .bk:nth-child(8) { width: 38px; height: 38px; top: 80%; left: 65%; }
+
+  /* ========================================
+     TECHNIQUE 1+6: Midground — 3D Text
+     ======================================== */
+  .mid-layer {
+    position: absolute; inset: 0; z-index: 10;
+    perspective: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .text-block {
+    position: relative;
+    transform: rotateY(-8deg);
+    transform-style: preserve-3d;
+  }
+
+  /* Top tag */
+  .top-tag {
+    position: absolute;
+    top: -180px; left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 32px;
+    border-radius: 40px;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: 3px;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .cover--tech .top-tag {
+    background: rgba(60,80,160,0.15);
+    color: rgba(140,170,255,0.7);
+  }
+  .cover--growth .top-tag {
+    background: rgba(180,100,40,0.15);
+    color: rgba(255,180,120,0.7);
+  }
+  .top-tag .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .cover--tech .top-tag .dot { background: #7b93ff; box-shadow: 0 0 12px rgba(123,147,255,0.5); }
+  .cover--growth .top-tag .dot { background: #ffb060; box-shadow: 0 0 12px rgba(255,176,96,0.5); }
+
+  /* Main title */
+  .main-title {
+    font-size: 116px;
+    font-weight: 900;
+    line-height: 1.35;
+    text-align: center;
+    width: 900px;
+    letter-spacing: 6px;
+    transform: translateZ(40px);
+    /* TECHNIQUE 6: Color atmospheric feel */
+  }
+  .cover--tech .main-title {
+    color: #e8edff;
+    text-shadow:
+      0 0 1px rgba(255,255,255,0.9),
+      0 2px 4px rgba(0,0,0,0.8),
+      0 8px 24px rgba(0,0,10,0.6);
+  }
+  .cover--growth .main-title {
+    color: #fff3e6;
+    text-shadow:
+      0 0 1px rgba(255,255,255,0.9),
+      0 2px 4px rgba(0,0,0,0.8),
+      0 8px 24px rgba(10,0,0,0.6);
+  }
+
+  /* TECHNIQUE 5: Ground shadow (skewY to simulate floor reflection) */
+  .ground-shadow {
+    position: absolute;
+    bottom: -80px; left: 50%;
+    transform: translateX(-50%) skewY(-20deg) scaleY(0.4);
+    width: 700px; height: 120px;
+    border-radius: 50%;
+    filter: blur(25px);
+  }
+  .cover--tech .ground-shadow {
+    background: radial-gradient(ellipse, rgba(100,140,255,0.18) 0%, transparent 70%);
+  }
+  .cover--growth .ground-shadow {
+    background: radial-gradient(ellipse, rgba(255,160,60,0.18) 0%, transparent 70%);
+  }
+
+  /* TECHNIQUE 5: Sharp near shadow + diffuse far shadow on text */
+  .main-title::before {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    transform: translate(6px, 8px) translateZ(-2px);
+    filter: blur(2px);
+    opacity: 0.4;
+    color: #000;
+  }
+  .main-title::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    transform: translate(14px, 20px) translateZ(-5px);
+    filter: blur(18px);
+    opacity: 0.15;
+    color: #000;
+  }
+
+  /* Subtitle */
+  .subtitle {
+    position: absolute;
+    bottom: -140px; left: 50%;
+    transform: translateX(-50%) translateZ(20px);
+    display: flex; align-items: center; gap: 16px;
+    font-size: 26px; font-weight: 400;
+    letter-spacing: 5px;
+    white-space: nowrap;
+  }
+  .subtitle::before, .subtitle::after {
+    content: '';
+    width: 60px; height: 1px;
+  }
+  .cover--tech .subtitle { color: rgba(140,170,255,0.4); }
+  .cover--tech .subtitle::before, .cover--tech .subtitle::after { background: linear-gradient(90deg, transparent, rgba(140,170,255,0.3)); }
+  .cover--tech .subtitle::after { background: linear-gradient(90deg, rgba(140,170,255,0.3), transparent); }
+  .cover--growth .subtitle { color: rgba(255,180,120,0.4); }
+  .cover--growth .subtitle::before, .cover--growth .subtitle::after { background: linear-gradient(90deg, transparent, rgba(255,180,120,0.3)); }
+  .cover--growth .subtitle::after { background: linear-gradient(90deg, rgba(255,180,120,0.3), transparent); }
+
+  /* Perspective decorative lines (near-big far-small) */
+  .deco-lines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 8;
+  }
+  .deco-lines .dl {
+    position: absolute;
+    height: 1px;
+    transform-origin: left center;
+  }
+  .cover--tech .deco-lines .dl {
+    background: linear-gradient(90deg, rgba(100,140,255,0.25), transparent);
+  }
+  .cover--growth .deco-lines .dl {
+    background: linear-gradient(90deg, rgba(255,180,120,0.25), transparent);
+  }
+  .dl:nth-child(1) { width: 180px; top: 42%; left: 3%; transform: rotate(-25deg); }
+  .dl:nth-child(2) { width: 120px; top: 44%; left: 5%; transform: rotate(-20deg); opacity: 0.5; }
+  .dl:nth-child(3) { width: 200px; top: 58%; right: 2%; left: auto; transform: rotate(25deg); transform-origin: right center; }
+  .dl:nth-child(4) { width: 140px; top: 56%; right: 4%; left: auto; transform: rotate(20deg); transform-origin: right center; opacity: 0.5; }
+
+  /* ========================================
+     TECHNIQUE 3+7: Foreground Bokeh (large, blurred, overlapping text)
+     ======================================== */
+  .fg-layer {
+    position: absolute; inset: 0; z-index: 20;
+    pointer-events: none;
+  }
+  .fg-bokeh {
+    position: absolute;
+    border-radius: 50%;
+  }
+  /* Tech variant: cool tones with warm accent */
+  .cover--tech .fg-bokeh:nth-child(1) {
+    width: 220px; height: 220px; top: 5%; right: -40px;
+    background: radial-gradient(circle, rgba(120,160,255,0.08) 0%, rgba(120,160,255,0.03) 50%, transparent 70%);
+    border: 1px solid rgba(120,160,255,0.12);
+    filter: blur(8px);
+  }
+  .cover--tech .fg-bokeh:nth-child(2) {
+    width: 160px; height: 160px; bottom: 20%; left: -30px;
+    background: radial-gradient(circle, rgba(255,200,100,0.1) 0%, rgba(255,200,100,0.03) 50%, transparent 70%);
+    border: 1px solid rgba(255,200,100,0.12);
+    filter: blur(10px);
+  }
+  .cover--tech .fg-bokeh:nth-child(3) {
+    width: 120px; height: 120px; top: 35%; right: 8%;
+    background: radial-gradient(circle, rgba(140,180,255,0.06) 0%, transparent 60%);
+    border: 1px solid rgba(140,180,255,0.08);
+    filter: blur(6px);
+    /* TECHNIQUE 7: overlaps text area */
+  }
+  .cover--tech .fg-bokeh:nth-child(4) {
+    width: 280px; height: 280px; bottom: -80px; left: 15%;
+    background: radial-gradient(circle, rgba(80,120,200,0.06) 0%, transparent 60%);
+    border: 1px solid rgba(80,120,200,0.06);
+    filter: blur(12px);
+  }
+  .cover--tech .fg-bokeh:nth-child(5) {
+    width: 90px; height: 90px; top: 60%; left: 5%;
+    background: radial-gradient(circle, rgba(255,220,130,0.08) 0%, transparent 60%);
+    border: 1px solid rgba(255,220,130,0.1);
+    filter: blur(5px);
+  }
+
+  /* Growth variant: warm tones */
+  .cover--growth .fg-bokeh:nth-child(1) {
+    width: 240px; height: 240px; top: 2%; left: -50px;
+    background: radial-gradient(circle, rgba(255,180,80,0.1) 0%, rgba(255,180,80,0.03) 50%, transparent 70%);
+    border: 1px solid rgba(255,180,80,0.12);
+    filter: blur(8px);
+  }
+  .cover--growth .fg-bokeh:nth-child(2) {
+    width: 180px; height: 180px; bottom: 15%; right: -30px;
+    background: radial-gradient(circle, rgba(255,140,60,0.08) 0%, rgba(255,140,60,0.02) 50%, transparent 70%);
+    border: 1px solid rgba(255,140,60,0.1);
+    filter: blur(10px);
+  }
+  .cover--growth .fg-bokeh:nth-child(3) {
+    width: 130px; height: 130px; top: 40%; left: 6%;
+    background: radial-gradient(circle, rgba(255,200,100,0.06) 0%, transparent 60%);
+    border: 1px solid rgba(255,200,100,0.08);
+    filter: blur(6px);
+  }
+  .cover--growth .fg-bokeh:nth-child(4) {
+    width: 300px; height: 300px; bottom: -100px; right: 10%;
+    background: radial-gradient(circle, rgba(200,100,50,0.05) 0%, transparent 60%);
+    border: 1px solid rgba(200,100,50,0.05);
+    filter: blur(14px);
+  }
+  .cover--growth .fg-bokeh:nth-child(5) {
+    width: 100px; height: 100px; top: 25%; right: 10%;
+    background: radial-gradient(circle, rgba(255,220,150,0.07) 0%, transparent 60%);
+    border: 1px solid rgba(255,220,150,0.09);
+    filter: blur(5px);
+  }
+
+  /* ========================================
+     TECHNIQUE 6: Warm light source glow (near) + cool ambient (far)
+     ======================================== */
+  .light-source {
+    position: absolute;
+    z-index: 6;
+    pointer-events: none;
+  }
+  .cover--tech .light-source {
+    width: 500px; height: 500px;
+    top: 10%; right: -5%;
+    background: radial-gradient(circle, rgba(255,200,100,0.07) 0%, transparent 60%);
+    filter: blur(30px);
+  }
+  .cover--growth .light-source {
+    width: 600px; height: 600px;
+    top: 5%; left: 20%;
+    background: radial-gradient(circle, rgba(255,180,80,0.1) 0%, transparent 60%);
+    filter: blur(35px);
+  }
+
+  /* Bottom gradient overlay for depth */
+  .depth-fade {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 400px;
+    z-index: 15;
+    pointer-events: none;
+  }
+  .cover--tech .depth-fade {
+    background: linear-gradient(180deg, transparent, rgba(10,14,30,0.6));
+  }
+  .cover--growth .depth-fade {
+    background: linear-gradient(180deg, transparent, rgba(10,6,8,0.6));
+  }
+</style>
+</head>
+<body class="tech">
+
+<!-- ============ VARIANT 1: AI 科技 ============ -->
+<div class="cover cover--tech">
+  <!-- Layer 1: Background -->
+  <div class="bg-layer"></div>
+
+  <!-- Layer 2: Stars -->
+  <div class="stars"></div>
+
+  <!-- Layer 3: Atmospheric haze -->
+  <div class="atmo-haze"></div>
+
+  <!-- Layer 4: Perspective grid -->
+  <div class="persp-grid"></div>
+
+  <!-- Layer 5: Warm light source -->
+  <div class="light-source"></div>
+
+  <!-- Layer 6: Background bokeh (small, far) -->
+  <div class="bokeh-bg">
+    <div class="bk"></div><div class="bk"></div><div class="bk"></div><div class="bk"></div>
+    <div class="bk"></div><div class="bk"></div><div class="bk"></div><div class="bk"></div>
+  </div>
+
+  <!-- Layer 7: Decorative perspective lines -->
+  <div class="deco-lines">
+    <div class="dl"></div><div class="dl"></div><div class="dl"></div><div class="dl"></div>
+  </div>
+
+  <!-- Layer 8: Midground text -->
+  <div class="mid-layer">
+    <div class="text-block">
+      <div class="top-tag"><span class="dot"></span>AI · 职场变革</div>
+      <div class="main-title" data-text="AI 正在重写<br>职场规则">AI 正在重写<br>职场规则</div>
+      <div class="ground-shadow"></div>
+      <div class="subtitle">未来已来 · 你准备好了吗</div>
+    </div>
+  </div>
+
+  <!-- Layer 9: Depth fade -->
+  <div class="depth-fade"></div>
+
+  <!-- Layer 10: Foreground bokeh (large, blurred, overlapping) -->
+  <div class="fg-layer">
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+  </div>
+</div>
+
+<div class="label">VARIANT 1 · AI 正在重写职场规则 · 科技冷色调 + 暖色光源</div>
+
+<!-- ============ VARIANT 2: 成长主题 ============ -->
+<div class="cover cover--growth">
+  <div class="bg-layer"></div>
+  <div class="stars"></div>
+  <div class="atmo-haze"></div>
+  <div class="persp-grid"></div>
+  <div class="light-source"></div>
+  <div class="bokeh-bg">
+    <div class="bk"></div><div class="bk"></div><div class="bk"></div><div class="bk"></div>
+    <div class="bk"></div><div class="bk"></div><div class="bk"></div><div class="bk"></div>
+  </div>
+  <div class="deco-lines">
+    <div class="dl"></div><div class="dl"></div><div class="dl"></div><div class="dl"></div>
+  </div>
+  <div class="mid-layer">
+    <div class="text-block">
+      <div class="top-tag"><span class="dot"></span>认知 · 突破</div>
+      <div class="main-title" data-text="从月薪3k到<br>年入百万">从月薪3k到<br>年入百万</div>
+      <div class="ground-shadow"></div>
+      <div class="subtitle">每一步都算数</div>
+    </div>
+  </div>
+  <div class="depth-fade"></div>
+  <div class="fg-layer">
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+    <div class="fg-bokeh"></div>
+  </div>
+</div>
+
+<div class="label">VARIANT 2 · 从月薪3k到年入百万 · 暖色调 + 深色背景</div>
+
+</body>
+</html>
