@@ -1,0 +1,64 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f5f0eb;color:#2C3E50}
+.container{max-width:1200px;margin:0 auto;padding:40px 20px}
+h1{text-align:center;font-size:36px;margin-bottom:8px;color:#2C3E50}
+.subtitle{text-align:center;font-size:16px;color:#999;margin-bottom:40px}
+.compare{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
+.compare-item{flex:1;min-width:320px;max-width:520px}
+.compare-item h3{text-align:center;font-size:18px;margin-bottom:12px;padding:8px 16px;border-radius:8px;display:inline-block}
+.compare-item h3.original{background:#e8e8e8;color:#666}
+.compare-item h3.enhanced{background:linear-gradient(135deg,#F44336,#FF9800);color:#fff}
+.iframe-wrap{border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);border:1px solid rgba(0,0,0,.08);background:#fff}
+.iframe-wrap iframe{width:100%;height:auto;display:block;border:none;pointer-events:none}
+.section-title{font-size:24px;font-weight:700;text-align:center;margin:48px 0 8px;color:#2C3E50}
+.section-desc{text-align:center;color:#999;font-size:14px;margin-bottom:24px}
+@media(max-width:720px){.compare{flex-direction:column;align-items:center}}
+</style></head><body>
+<div class="container">
+  <h1>3D 立体化增强 — 对比展示</h1>
+  <p class="subtitle">wife-anger-cycle · 原版 vs 3D 增强版</p>
+
+  <!-- Slide 01 -->
+  <div class="section-title">封面 — 浮雕标题 + 暖光氛围</div>
+  <div class="section-desc">text-shadow 多层浮雕 + drop-shadow emoji 光晕 + 渐变环境光</div>
+  <div class="compare">
+    <div class="compare-item">
+      <h3 class="original">原版</h3>
+      <div class="iframe-wrap"><iframe src="../wife-anger-cycle/slide-01.html" style="transform:scale(.45);transform-origin:top left;width:222.2%;height:calc(1440px * .45 + 2px)"></iframe></div>
+    </div>
+    <div class="compare-item">
+      <h3 class="enhanced">3D 增强</h3>
+      <div class="iframe-wrap" style="border-color:rgba(244,67,54,.2)"><iframe src="slide-01-3d.html" style="transform:scale(.45);transform-origin:top left;width:222.2%;height:calc(1440px * .45 + 2px)"></iframe></div>
+    </div>
+  </div>
+
+  <!-- Slide 03 -->
+  <div class="section-title">状态机图 — 透视空间 + 聚光灯</div>
+  <div class="section-desc">CSS perspective 微透视 + SVG feDropShadow 节点阴影 + 关键状态光晕</div>
+  <div class="compare">
+    <div class="compare-item">
+      <h3 class="original">原版</h3>
+      <div class="iframe-wrap"><iframe src="../wife-anger-cycle/slide-03.html" style="transform:scale(.45);transform-origin:top left;width:222.2%;height:calc(1440px * .45 + 2px)"></iframe></div>
+    </div>
+    <div class="compare-item">
+      <h3 class="enhanced">3D 增强</h3>
+      <div class="iframe-wrap" style="border-color:rgba(244,67,54,.2)"><iframe src="slide-03-3d.html" style="transform:scale(.45);transform-origin:top left;width:222.2%;height:calc(1440px * .45 + 2px)"></iframe></div>
+    </div>
+  </div>
+
+  <!-- Slide 04 -->
+  <div class="section-title">文字分析 — 卡片层次 + 暖光</div>
+  <div class="section-desc">多层 box-shadow 深度卡片 + 顶部高光边 + 色彩光晕强调 + 微透视SVG</div>
+  <div class="compare">
+    <div class="compare-item">
+      <h3 class="original">原版</h3>
+      <div class="iframe-wrap"><iframe src="../wife-anger-cycle/slide-04.html" style="transform:scale(.45);transform-origin:top left;width:222.2%;height:calc(1440px * .45 + 2px)"></iframe></div>
+    </div>
+    <div class="compare-item">
+      <h3 class="enhanced">3D 增强</h3>
+      <div class="iframe-wrap" style="border-color:rgba(244,67,54,.2)"><iframe src="slide-04-3d.html" style="transform:scale(.45);transform-origin:top left;width:222.2%;height:calc(1440px * .45 + 2px)"></iframe></div>
+    </div>
+  </div>
+</div>
+</body></html>

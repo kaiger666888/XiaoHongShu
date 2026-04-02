@@ -1,0 +1,108 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;background:#FFF9F0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#2C3E50;overflow:hidden;position:relative}
+/* Warm ambient light from top-left */
+body::before{content:'';position:absolute;top:-100px;left:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(244,67,54,.04) 0%,transparent 70%);pointer-events:none}
+.wrap{padding:60px 48px 48px 48px;position:relative;z-index:1}
+
+h2{font-size:86px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.05)}
+.sub{font-size:43px;color:#7F8C8D;margin-bottom:43px}
+
+/* 3D cards with layered depth */
+.card{background:#fff;border-radius:28px;padding:50px 57px;margin:36px 0;position:relative;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),
+    0 4px 8px rgba(0,0,0,.04),
+    0 12px 32px rgba(0,0,0,.03);
+  border:1px solid rgba(0,0,0,.03);
+  transform:translateZ(0);
+  transition:transform .3s ease}
+/* Subtle inner highlight on card top edge */
+.card::before{content:'';position:absolute;top:0;left:24px;right:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent)}
+
+.txt{font-size:43px;line-height:1.75}
+.sm{font-size:36px;color:#7F8C8D}
+.highlight{color:#F44336;font-weight:bold}
+
+.foot{position:static;padding-top:60px;font-size:32px;color:#7F8C8D}
+
+/* Warning card - elevated with red accent glow */
+.card-danger{border-left:4px solid #F44336;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),
+    0 4px 8px rgba(0,0,0,.04),
+    0 12px 32px rgba(0,0,0,.03),
+    -4px 0 20px rgba(244,67,54,.06)}
+
+/* Info card with warm glow */
+.card-info{border-left:4px solid #FF9800;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),
+    0 4px 8px rgba(0,0,0,.04),
+    0 12px 32px rgba(0,0,0,.03),
+    -4px 0 20px rgba(255,152,0,.06)}
+
+/* SVG diagram with subtle depth */
+.svg-stage{perspective:800px;margin-top:36px}
+.svg-plane{transform:rotateX(2deg);filter:drop-shadow(0 4px 12px rgba(0,0,0,.06))}
+
+/* Quote block with warm gradient and depth */
+.quote{margin-top:36px;padding:36px 50px;border-radius:21px;border-left:4px solid #F44336;position:relative;
+  background:linear-gradient(135deg,#FFF3E0 0%,#FFEBEE 100%);
+  box-shadow:0 4px 16px rgba(244,67,54,.06),0 1px 3px rgba(0,0,0,.03)}
+.quote::before{content:'';position:absolute;top:0;left:24px;right:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent)}
+</style></head><body>
+<div class="wrap">
+  <h2>第一章：暴风雨前的宁静</h2>
+  <div class="sub">一切从"你随意吧"开始……</div>
+
+  <div class="card card-danger">
+    <div class="txt" style="margin-bottom:28px"><span class="highlight">⚠️ 高危触发信号</span></div>
+    <div class="txt" style="line-height:1.65">
+      🔴 "你随意吧"<br>
+      🔴 突然安静<br>
+      🔴 微笑表情包 🙂<br>
+      🔴 "你看看你做的这些事"
+    </div>
+  </div>
+
+  <div class="card card-info">
+    <div class="txt"><span class="highlight">⏱ 恢复窗口：10分钟 ~ 2小时</span></div>
+    <div class="sm">错过窗口，自动进入酝酿态</div>
+  </div>
+
+  <div class="svg-stage">
+    <div class="svg-plane">
+      <svg width="952" height="160" viewBox="0 0 952 160">
+        <defs>
+          <marker id="ah4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#F44336"/>
+          </marker>
+          <marker id="ah4d" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#F44336" opacity="0.5"/>
+          </marker>
+          <filter id="btnShadow" x="-5%" y="-5%" width="110%" height="130%">
+            <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.08)"/>
+          </filter>
+        </defs>
+        <g filter="url(#btnShadow)">
+          <rect x="40" y="40" width="180" height="80" rx="16" fill="#E8F5E9" stroke="#4CAF50" stroke-width="3"/>
+        </g>
+        <text x="130" y="88" text-anchor="middle" font-size="43" font-weight="bold" fill="#2E7D32">平静态</text>
+        <g filter="url(#btnShadow)">
+          <rect x="732" y="40" width="180" height="80" rx="16" fill="#FFF3E0" stroke="#FF9800" stroke-width="3"/>
+        </g>
+        <text x="822" y="88" text-anchor="middle" font-size="43" font-weight="bold" fill="#E65100">酝酿态</text>
+        <line x1="220" y1="65" x2="732" y2="65" stroke="#F44336" stroke-width="2.5" marker-end="url(#ah4)"/>
+        <rect x="390" y="42" width="172" height="28" rx="6" fill="rgba(255,255,255,0.9)"/>
+        <text x="476" y="63" text-anchor="middle" font-size="32" fill="#F44336">❶ 忽视预警</text>
+        <line x1="220" y1="95" x2="732" y2="95" stroke="#F44336" stroke-width="2" stroke-dasharray="8,5" opacity="0.5" marker-end="url(#ah4d)"/>
+        <rect x="390" y="80" width="172" height="28" rx="6" fill="rgba(255,255,255,0.9)"/>
+        <text x="476" y="100" text-anchor="middle" font-size="32" fill="#F44336" opacity="0.6">❷ "你随意吧"</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="quote">
+    <div class="txt" style="font-style:italic">"这个阶段最好识别，但大多数男人选择无视。"</div>
+  </div>
+</div>
+<div class="foot">4 / 9 · 3D Enhanced</div>
+</body></html>
