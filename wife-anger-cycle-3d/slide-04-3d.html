@@ -7,17 +7,15 @@ body::before{content:'';position:absolute;top:-150px;left:-150px;width:700px;hei
 body::after{content:'';position:absolute;bottom:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(255,200,100,.15) 0%,transparent 70%);pointer-events:none}
 .wrap{padding:60px 48px 48px 48px;position:relative;z-index:1}
 
-h2{font-size:86px;font-weight:900;text-shadow:0 15px 0 rgba(0,0,0,.12),0 30px 0 rgba(0,0,0,.06),0 4px 8px rgba(0,0,0,.08)}
+h2{font-size:86px;font-weight:900;text-shadow:0 1px 0 rgba(255,255,255,.6),0 2px 4px rgba(0,0,0,.06)}
 .sub{font-size:43px;color:#7F8C8D;margin-bottom:43px}
 
-/* STRONG 3D floating cards */
+/* Unified 3D cards - consistent light source from top-left */
 .card{background:#fff;border-radius:28px;padding:50px 57px;margin:36px 0;position:relative;
-  box-shadow:0 10px 30px rgba(0,0,0,.12),
-    0 2px 8px rgba(0,0,0,.08),
-    inset 0 1px 0 rgba(255,255,255,.8);
-  border:1px solid rgba(0,0,0,.04);
-  transform:perspective(600px) rotateY(-2deg);
-  transition:transform .3s ease}
+  box-shadow:0 4px 12px rgba(0,0,0,.08),
+    0 1px 3px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(0,0,0,.04)}
 /* Top edge highlight */
 .card::before{content:'';position:absolute;top:0;left:24px;right:24px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent)}
 
@@ -27,31 +25,26 @@ h2{font-size:86px;font-weight:900;text-shadow:0 15px 0 rgba(0,0,0,.12),0 30px 0 
 
 .foot{position:static;padding-top:60px;font-size:32px;color:#7F8C8D}
 
-/* Danger card - STRONG red glow from left */
+/* Danger card - subtle left accent */
 .card-danger{border-left:4px solid #F44336;
-  box-shadow:0 10px 30px rgba(0,0,0,.12),
-    0 2px 8px rgba(0,0,0,.08),
-    inset 0 1px 0 rgba(255,255,255,.8),
-    -4px 0 15px rgba(244,67,54,.3),
-    -8px 0 30px rgba(244,67,54,.15)}
+  box-shadow:0 4px 12px rgba(0,0,0,.08),
+    0 1px 3px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.9)}
 
-/* Info card with warm glow */
+/* Info card with warm accent */
 .card-info{border-left:4px solid #FF9800;
-  box-shadow:0 10px 30px rgba(0,0,0,.12),
-    0 2px 8px rgba(0,0,0,.08),
-    inset 0 1px 0 rgba(255,255,255,.8),
-    -4px 0 15px rgba(255,152,0,.25),
-    -8px 0 30px rgba(255,152,0,.12)}
+  box-shadow:0 4px 12px rgba(0,0,0,.08),
+    0 1px 3px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.9)}
 
-/* SVG diagram with strong depth */
-.svg-stage{perspective:800px;margin-top:36px}
-.svg-plane{transform:rotateX(8deg);box-shadow:0 15px 40px rgba(0,0,0,.15),0 5px 15px rgba(0,0,0,.1);border-radius:16px;overflow:hidden}
+/* SVG diagram - subtle depth */
+.svg-stage{margin-top:36px}
+.svg-plane{box-shadow:0 4px 12px rgba(0,0,0,.08);border-radius:16px;overflow:hidden}
 
-/* Quote block with warm gradient and strong depth */
+/* Quote block */
 .quote{margin-top:36px;padding:36px 50px;border-radius:21px;border-left:4px solid #F44336;position:relative;
   background:linear-gradient(135deg,#FFF3E0 0%,#FFEBEE 100%);
-  box-shadow:0 10px 25px rgba(244,67,54,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.7);
-  transform:perspective(600px) rotateY(-1.5deg)}
+  box-shadow:0 4px 12px rgba(244,67,54,.08),0 1px 3px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.7)}
 .quote::before{content:'';position:absolute;top:0;left:24px;right:24px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent)}
 </style></head><body>
 <div class="wrap">
