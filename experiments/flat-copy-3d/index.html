@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平面文案立体化技术探究</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .page {
+    width: 1080px;
+    max-width: 100%;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+    letter-spacing: 4px;
+  }
+
+  .page-subtitle {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 48px;
+    letter-spacing: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .card {
+    background: #12121a;
+    border: 1px solid #1e1e2e;
+    border-radius: 20px;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  }
+
+  .card-number {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    font-size: 12px;
+    color: #444;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #aaa;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+  }
+
+  .demo-area {
+    width: 100%;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 36px;
+    position: relative;
+  }
+
+  .card-desc {
+    width: 100%;
+    padding: 20px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .card-desc h4 {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .card-desc p {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.8;
+  }
+
+  .card-desc code {
+    font-size: 11px;
+    color: #764ba2;
+    background: rgba(118,75,162,0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ====== 1. 浮雕/刻字效果 ====== */
+  .emboss-bg {
+    background: linear-gradient(145deg, #2a2a3a, #1a1a2a);
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .emboss-raised {
+    font-size: 52px;
+    font-weight: 900;
+    color: #2a2a3a;
+    text-shadow:
+      -1px -1px 1px rgba(255,255,255,0.1),
+      1px 1px 2px rgba(0,0,0,0.6),
+      0 0 5px rgba(0,0,0,0.3);
+    letter-spacing: 8px;
+  }
+
+  .emboss-pressed {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2a2a3a;
+    text-shadow:
+      1px 1px 1px rgba(255,255,255,0.05),
+      -1px -1px 2px rgba(0,0,0,0.5);
+    margin-top: 24px;
+    letter-spacing: 4px;
+  }
+
+  /* ====== 2. 霓虹灯效果 ====== */
+  .neon-bg {
+    background: #0a0a0a;
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .neon-pink {
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+      0 0 7px #ff00de,
+      0 0 10px #ff00de,
+      0 0 21px #ff00de,
+      0 0 42px #ff00de,
+      0 0 82px #ff00de;
+    letter-spacing: 8px;
+    animation: neon-flicker 3s infinite alternate;
+  }
+
+  .neon-blue {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow:
+      0 0 5px #0ff,
+      0 0 10px #0ff,
+      0 0 20px #0ff,
+      0 0 40px #0ff,
+      0 0 80px #0ff;
+    letter-spacing: 4px;
+  }
+
+  @keyframes neon-flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.8; }
+  }
+
+  /* ====== 3. 长阴影 ====== */
+  .longshadow-bg {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .longshadow-text {
+    font-size: 56px;
+    font-weight: 900;
+    color: #e74c3c;
+    text-shadow: /* 45-degree shadow via repeated offsets */
+      1px 1px 0 rgba(0,0,0,0.2),
+      2px 2px 0 rgba(0,0,0,0.2),
+      3px 3px 0 rgba(0,0,0,0.2),
+      4px 4px 0 rgba(0,0,0,0.2),
+      5px 5px 0 rgba(0,0,0,0.2),
+      6px 6px 0 rgba(0,0,0,0.2),
+      7px 7px 0 rgba(0,0,0,0.2),
+      8px 8px 0 rgba(0,0,0,0.2),
+      9px 9px 0 rgba(0,0,0,0.2),
+      10px 10px 0 rgba(0,0,0,0.2),
+      11px 11px 0 rgba(0,0,0,0.2),
+      12px 12px 0 rgba(0,0,0,0.2),
+      13px 13px 0 rgba(0,0,0,0.2),
+      14px 14px 0 rgba(0,0,0,0.2),
+      15px 15px 0 rgba(0,0,0,0.2),
+      16px 16px 0 rgba(0,0,0,0.2),
+      17px 17px 0 rgba(0,0,0,0.2),
+      18px 18px 0 rgba(0,0,0,0.2),
+      19px 19px 0 rgba(0,0,0,0.2),
+      20px 20px 0 rgba(0,0,0,0.2),
+      21px 21px 0 rgba(0,0,0,0.2),
+      22px 22px 0 rgba(0,0,0,0.2),
+      23px 23px 0 rgba(0,0,0,0.2),
+      24px 24px 0 rgba(0,0,0,0.2),
+      25px 25px 0 rgba(0,0,0,0.2),
+      26px 26px 0 rgba(0,0,0,0.2),
+      27px 27px 0 rgba(0,0,0,0.2),
+      28px 28px 0 rgba(0,0,0,0.2),
+      29px 29px 0 rgba(0,0,0,0.2),
+      30px 30px 0 rgba(0,0,0,0.2),
+      31px 31px 0 rgba(0,0,0,0.2),
+      32px 32px 0 rgba(0,0,0,0.2),
+      33px 33px 0 rgba(0,0,0,0.2),
+      34px 34px 0 rgba(0,0,0,0.2),
+      35px 35px 0 rgba(0,0,0,0.2),
+      36px 36px 0 rgba(0,0,0,0.2),
+      37px 37px 0 rgba(0,0,0,0.2),
+      38px 38px 0 rgba(0,0,0,0.2),
+      39px 39px 0 rgba(0,0,0,0.2),
+      40px 40px 0 rgba(0,0,0,0.2);
+    letter-spacing: 8px;
+  }
+
+  .longshadow-sub {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e74c3c;
+    text-shadow:
+      1px 1px 0 rgba(0,0,0,0.15),
+      2px 2px 0 rgba(0,0,0,0.15),
+      3px 3px 0 rgba(0,0,0,0.15),
+      4px 4px 0 rgba(0,0,0,0.15),
+      5px 5px 0 rgba(0,0,0,0.15),
+      6px 6px 0 rgba(0,0,0,0.15),
+      7px 7px 0 rgba(0,0,0,0.15),
+      8px 8px 0 rgba(0,0,0,0.15),
+      9px 9px 0 rgba(0,0,0,0.15),
+      10px 10px 0 rgba(0,0,0,0.15),
+      11px 11px 0 rgba(0,0,0,0.15),
+      12px 12px 0 rgba(0,0,0,0.15),
+      13px 13px 0 rgba(0,0,0,0.15),
+      14px 14px 0 rgba(0,0,0,0.15),
+      15px 15px 0 rgba(0,0,0,0.15),
+      16px 16px 0 rgba(0,0,0,0.15);
+    letter-spacing: 4px;
+  }
+
+  /* ====== 4. 透视空间感 ====== */
+  .perspective-bg {
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a15 100%);
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 600px;
+    overflow: hidden;
+  }
+
+  .perspective-scene {
+    transform-style: preserve-3d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .perspective-near {
+    font-size: 60px;
+    font-weight: 900;
+    color: #fff;
+    transform: translateZ(80px);
+    text-shadow: 0 4px 20px rgba(102,126,234,0.4);
+    letter-spacing: 6px;
+  }
+
+  .perspective-mid {
+    font-size: 36px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    transform: translateZ(0px) rotateX(10deg);
+    letter-spacing: 4px;
+  }
+
+  .perspective-far {
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.3);
+    transform: translateZ(-60px) rotateX(15deg);
+    letter-spacing: 3px;
+  }
+
+  .perspective-grid {
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    height: 60%;
+    background:
+      linear-gradient(90deg, rgba(102,126,234,0.1) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(102,126,234,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    transform: rotateX(60deg);
+    transform-origin: center top;
+  }
+
+  /* ====== 5. 玻璃拟态 ====== */
+  .glass-bg {
+    background: linear-gradient(135deg, #667eea22, #764ba222, #f093fb22);
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-bg::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, #667eea44, transparent 70%);
+    top: -40px;
+    right: -40px;
+    border-radius: 50%;
+  }
+
+  .glass-bg::after {
+    content: '';
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, #f093fb44, transparent 70%);
+    bottom: -30px;
+    left: -30px;
+    border-radius: 50%;
+  }
+
+  .glass-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 24px 48px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  }
+
+  .glass-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 6px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  .glass-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  /* ====== 6. 金属质感 ====== */
+  .metal-bg {
+    background: linear-gradient(180deg, #1a1a1a, #2a2a2a, #1a1a1a);
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .metal-gold {
+    font-size: 52px;
+    font-weight: 900;
+    background: linear-gradient(
+      180deg,
+      #bf953f 0%,
+      #fcf6ba 25%,
+      #b38728 50%,
+      #fbf5b7 75%,
+      #aa771c 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    letter-spacing: 8px;
+  }
+
+  .metal-silver {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(
+      180deg,
+      #e8e8e8 0%,
+      #ffffff 20%,
+      #a0a0a0 40%,
+      #ffffff 60%,
+      #b0b0b0 80%,
+      #e8e8e8 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+    letter-spacing: 4px;
+  }
+
+  /* ====== 7. 光影投射 ====== */
+  .light-bg {
+    background: #1a1a2e;
+    border-radius: 12px;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Simulated light source */
+  .light-source {
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(255,220,150,0.4), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .light-text {
+    font-size: 52px;
+    font-weight: 900;
+    color: #f0e6d3;
+    text-shadow:
+      -4px -4px 0px rgba(255,255,255,0.1),   /* highlight edge */
+      4px 4px 8px rgba(0,0,0,0.5),              /* shadow */
+      6px 6px 16px rgba(0,0,0,0.3),             /* far shadow */
+      0 0 30px rgba(255,200,100,0.1);           /* ambient glow */
+    letter-spacing: 8px;
+    transform: skewX(-2deg);
+  }
+
+  .light-sub {
+    font-size: 18px;
+    color: rgba(240,230,211,0.4);
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+    letter-spacing: 3px;
+  }
+
+  .light-floor {
+    position: absolute;
+    bottom: 20px;
+    width: 60%;
+    height: 30px;
+    background: radial-gradient(ellipse, rgba(255,200,100,0.06), transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* Responsive */
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .page-title { font-size: 28px; }
+    .emboss-raised, .neon-pink, .longshadow-text, .metal-gold, .light-text { font-size: 36px; }
+    .perspective-near { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1 class="page-title">平面文案立体化技术探究</h1>
+  <p class="page-subtitle">7 种纯 CSS 方案 · 无外部依赖 · 适配小红书封面</p>
+
+  <div class="grid">
+
+    <!-- 1. 浮雕/刻字 -->
+    <div class="card">
+      <span class="card-number">01</span>
+      <h3 class="card-title">浮雕 / 刻字效果</h3>
+      <div class="demo-area">
+        <div class="emboss-bg">
+          <div>
+            <div class="emboss-raised">凸起浮雕</div>
+            <div class="emboss-pressed">凹陷刻字</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          凸起效果：左上 <code>text-shadow</code> 用亮色高光，右下用暗色阴影。<br>
+          凹陷效果：反转高光/阴影方向。<br>
+          文字颜色与背景同色，纯靠阴影制造深度错觉。
+        </p>
+      </div>
+    </div>
+
+    <!-- 2. 霓虹灯 -->
+    <div class="card">
+      <span class="card-number">02</span>
+      <h3 class="card-title">霓虹灯效果</h3>
+      <div class="demo-area">
+        <div class="neon-bg">
+          <div class="neon-pink">霓虹闪烁</div>
+          <div class="neon-blue">CYBER CITY</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          多层 <code>text-shadow</code> 递增 <code>blur-radius</code>，模拟光晕扩散。<br>
+          暗背景是必须条件，深色让发光更突出。<br>
+          可加 <code>@keyframes</code> 闪烁动画增强真实感。
+        </p>
+      </div>
+    </div>
+
+    <!-- 3. 长阴影 -->
+    <div class="card">
+      <span class="card-number">03</span>
+      <h3 class="card-title">长阴影 Long Shadow</h3>
+      <div class="demo-area">
+        <div class="longshadow-bg">
+          <div class="longshadow-text">FLAT</div>
+          <div class="longshadow-sub">但并不平淡</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          核心是沿 45° 方向重复 N 层 <code>text-shadow</code>，每层偏移 +1px。<br>
+          文字颜色与背景色相同，阴影颜色用半透明黑。<br>
+          扁平化设计经典手法，简洁但有冲击力。
+        </p>
+      </div>
+    </div>
+
+    <!-- 4. 透视空间感 -->
+    <div class="card">
+      <span class="card-number">04</span>
+      <h3 class="card-title">透视空间感</h3>
+      <div class="demo-area">
+        <div class="perspective-bg">
+          <div class="perspective-grid"></div>
+          <div class="perspective-scene">
+            <div class="perspective-far">远处的文字</div>
+            <div class="perspective-mid">中间层</div>
+            <div class="perspective-near">近景突出</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          容器设 <code>perspective: 600px</code> 开启 3D 空间。<br>
+          子元素用 <code>translateZ()</code> 控制远近，正值近、负值远。<br>
+          配合 <code>rotateX()</code> 倾斜和透明度变化增强纵深。<br>
+          底部网格线用 <code>rotateX(60deg)</code> 模拟地面。
+        </p>
+      </div>
+    </div>
+
+    <!-- 5. 玻璃拟态 -->
+    <div class="card">
+      <span class="card-number">05</span>
+      <h3 class="card-title">玻璃拟态 Glassmorphism</h3>
+      <div class="demo-area">
+        <div class="glass-bg">
+          <div class="glass-card">
+            <div class="glass-title">毛玻璃</div>
+            <div class="glass-subtitle">FROSTED GLASS</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          <code>backdrop-filter: blur(16px)</code> 是核心，对背景进行高斯模糊。<br>
+          半透明背景 <code>rgba(255,255,255,0.08)</code> + 细微边框。<br>
+          顶部高光线条模拟玻璃反光。<br>
+          背景需有彩色光斑才能体现磨砂效果。
+        </p>
+      </div>
+    </div>
+
+    <!-- 6. 金属质感 -->
+    <div class="card">
+      <span class="card-number">06</span>
+      <h3 class="card-title">金属质感</h3>
+      <div class="demo-area">
+        <div class="metal-bg">
+          <div class="metal-gold">黄金质感</div>
+          <div class="metal-silver">SILVER CHROME</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          <code>background-clip: text</code> 让渐变填充文字。<br>
+          金色：多段黄棕渐变模拟金属高光和暗部。<br>
+          银色：白-灰交替渐变模拟铬合金反射。<br>
+          <code>drop-shadow</code> 增加文字与背景的分离感。
+        </p>
+      </div>
+    </div>
+
+    <!-- 7. 光影投射 -->
+    <div class="card">
+      <span class="card-number">07</span>
+      <h3 class="card-title">光影投射</h3>
+      <div class="demo-area">
+        <div class="light-bg">
+          <div class="light-source"></div>
+          <div class="light-text">光影戏剧</div>
+          <div class="light-sub">DRAMATIC LIGHT</div>
+          <div class="light-floor"></div>
+        </div>
+      </div>
+      <div class="card-desc">
+        <h4>技术要点</h4>
+        <p>
+          光源用 <code>radial-gradient</code> 模拟，置于角落。<br>
+          文字高光侧（左上）用亮色 shadow，暗侧（右下）用深色多层 shadow。<br>
+          <code>transform: skewX()</code> 增加不稳定性。<br>
+          底部椭圆光斑模拟光线照射地面反射。
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
