@@ -1,15 +1,18 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:1080px;height:1440px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#fff;font-family:'PingFang SC','Microsoft YaHei',sans-serif;overflow:hidden;position:relative}
+body{width:1080px;height:1440px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#fff;font-family:'PingFang SC','Microsoft YaHei',sans-serif;overflow:hidden;position:relative}
 /* Warm ambient glow for dark bg */
 body::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;background:radial-gradient(ellipse,rgba(255,180,100,.12) 0%,rgba(255,100,50,.06) 40%,transparent 70%);pointer-events:none}
 /* Subtle cool accent */
 body::after{content:'';position:absolute;bottom:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(100,150,255,.08) 0%,transparent 70%);pointer-events:none}
-</style></head><body style="padding:40px 48px 30px 48px">
+</style></head><body style="padding:80px 48px 30px 48px">
   <div style="text-align:center;position:relative;z-index:1">
-    <img src="volvo-car.png" style="width:1044px;height:360px;object-fit:cover;border-radius:36px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.4),0 5px 20px rgba(0,0,0,.3)" />
+    <img src="volvo-car.png" style="width:900px;height:auto;border-radius:24px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.4),0 5px 20px rgba(0,0,0,.3)" />
   </div>
-  <p style="margin-top:20px;font-size:57px;font-weight:300;text-shadow:4px 4px 0 rgba(0,0,0,.2),8px 8px 0 rgba(0,0,0,.1);position:relative;z-index:1">安全，从认真对待身边人开始。</p>
-  <p style="position:fixed;bottom:40px;right:80px;font-size:40px;font-weight:700;opacity:.5;text-shadow:0 2px 10px rgba(0,0,0,.3)">Volvo</p>
+  <p style="margin-top:60px;text-align:center;position:relative;z-index:1">
+    <span style="display:block;font-size:72px;font-weight:700;letter-spacing:8px;text-shadow:4px 4px 0 rgba(0,0,0,.2),8px 8px 0 rgba(0,0,0,.1)">安全</span>
+    <span style="display:block;font-size:42px;font-weight:300;margin-top:24px;text-shadow:2px 2px 0 rgba(0,0,0,.15),4px 4px 0 rgba(0,0,0,.08)">从认真倾听身边人开始</span>
+  </p>
+  <img src="volvo-logo.png" style="position:fixed;bottom:40px;right:60px;width:120px;height:auto;opacity:.4" />
   <p style="position:fixed;bottom:40px;left:80px;font-size:36px;opacity:.25">Page 9 / 9</p>
 </body></html>
