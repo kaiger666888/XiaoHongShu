@@ -1,40 +1,43 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{width:1080px;height:1440px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#FFF9F0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#2C3E50;overflow:hidden;position:relative}
-/* Warm ambient glow from top */
-body::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(ellipse,rgba(244,67,54,.06) 0%,transparent 70%);pointer-events:none}
-/* Subtle warm light from bottom-right */
-body::after{content:'';position:absolute;bottom:-300px;right:-200px;width:800px;height:800px;background:radial-gradient(ellipse,rgba(255,152,0,.04) 0%,transparent 70%);pointer-events:none}
+/* Strong warm light top-left */
+body::before{content:'';position:absolute;top:-300px;left:-200px;width:900px;height:900px;background:radial-gradient(ellipse,rgba(255,180,100,.25) 0%,transparent 70%);pointer-events:none}
+/* Strong dark bottom-right */
+body::after{content:'';position:absolute;bottom:-300px;right:-200px;width:900px;height:900px;background:radial-gradient(ellipse,rgba(40,20,60,.2) 0%,transparent 70%);pointer-events:none}
 
 .wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;z-index:1}
 
-/* 3D emoji with glow and shadow */
-.emoji{font-size:252px;margin-bottom:36px;filter:drop-shadow(0 20px 40px rgba(244,67,54,.25));animation:float 4s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0) translateZ(0)}50%{transform:translateY(-12px) translateZ(20px)}}
+/* 3D emoji with STRONG glow and shadow */
+.emoji{font-size:252px;margin-bottom:36px;filter:drop-shadow(0 40px 60px rgba(244,67,54,.4)) drop-shadow(0 80px 40px rgba(244,67,54,.2));animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) translateZ(0)}50%{transform:translateY(-16px) translateZ(30px)}}
 
-/* Embossed 3D title */
+/* Title card container with strong float */
+.title-card{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);border-radius:32px;padding:48px 72px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,.15),0 5px 20px rgba(0,0,0,.1),0 1px 0 rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.6)}
+
+/* STRONG long cast shadow on title text */
 h1{font-size:93px;font-weight:900;line-height:1.3;color:#2C3E50;text-shadow:
   0 1px 0 rgba(255,255,255,.6),
-  0 2px 0 rgba(0,0,0,.03),
-  0 4px 0 rgba(0,0,0,.02),
-  0 6px 12px rgba(0,0,0,.08),
-  0 12px 24px rgba(244,67,54,.06);
+  0 30px 0 rgba(0,0,0,.15),
+  0 60px 0 rgba(0,0,0,.08),
+  0 90px 0 rgba(0,0,0,.04),
+  0 15px 30px rgba(244,67,54,.1);
 letter-spacing:2px}
 
 .sub{font-size:46px;color:#7F8C8D;margin:28px 0 86px;letter-spacing:1px}
 
-/* Decorative line with gradient glow */
-.line{width:180px;height:5px;background:linear-gradient(90deg,transparent,#2C3E50,transparent);opacity:.15;margin:0 auto 64px;position:relative}
-.line::after{content:'';position:absolute;top:-4px;left:20%;right:20%;height:13px;background:linear-gradient(90deg,transparent,rgba(244,67,54,.08),transparent);filter:blur(4px)}
+.line{width:180px;height:5px;background:linear-gradient(90deg,transparent,#2C3E50,transparent);opacity:.2;margin:0 auto 64px;position:relative}
+.line::after{content:'';position:absolute;top:-4px;left:20%;right:20%;height:13px;background:linear-gradient(90deg,transparent,rgba(244,67,54,.15),transparent);filter:blur(4px)}
 
-/* Version badge with depth */
-.badge{font-size:36px;color:#7F8C8D;background:rgba(255,255,255,.7);padding:12px 32px;border-radius:40px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.04)}
+.badge{font-size:36px;color:#7F8C8D;background:rgba(255,255,255,.8);padding:12px 32px;border-radius:40px;box-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06)}
 
 .foot{position:fixed;bottom:48px;font-size:32px;color:#7F8C8D;opacity:.6}
 </style></head><body>
 <div class="wrap">
   <div class="emoji">💢</div>
-  <h1>老婆的生气周期<br>分析报告</h1>
+  <div class="title-card">
+    <h1>老婆的生气周期<br>分析报告</h1>
+  </div>
   <p class="sub">一个理工男用状态机图的硬核分析</p>
   <div class="line"></div>
   <p class="badge">State Diagram Analysis v1.0</p>
