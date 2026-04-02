@@ -11,29 +11,29 @@ background-size:120px 60px;
 transform:perspective(400px) rotateX(45deg);
 transform-origin:bottom center;
 pointer-events:none;opacity:.6}
-.wrap{padding:60px 48px 48px 48px;position:relative;z-index:1}
-h2{font-size:79px;font-weight:900;text-shadow:4px 4px 0 rgba(0,0,0,.1),8px 8px 0 rgba(0,0,0,.05)}
-.sub{font-size:39px;color:#7F8C8D;margin-bottom:36px}
-.card{background:#fff;border-radius:25px;padding:36px 50px;margin:25px 0;box-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.03)}
-.txt{font-size:36px;line-height:1.65}
-.sm{font-size:30px;color:#7F8C8D}
+.wrap{padding:32px 40px 20px 40px;position:relative;z-index:1}
+h2{font-size:60px;font-weight:900;text-shadow:4px 4px 0 rgba(0,0,0,.1),8px 8px 0 rgba(0,0,0,.05)}
+.sub{font-size:34px;color:#7F8C8D;margin-bottom:20px}
+.card{background:#fff;border-radius:25px;padding:36px 50px;margin:10px 0;box-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.03)}
+.txt{font-size:32px;line-height:1.55}
+.sm{font-size:26px;color:#7F8C8D}
 svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
-.foot{position:static;padding-top:60px;font-size:28px;color:#7F8C8D}
+.foot{position:static;padding-top:28px;font-size:24px;color:#7F8C8D}
 
 /* STRONG 3D perspective for diagram */
-.diagram-stage{perspective:800px;text-align:center;margin:25px 0}
+.diagram-stage{perspective:800px;text-align:center;margin:10px 0}
 .diagram-plane{transform:rotateX(12deg);transform-style:preserve-3d;transition:transform .5s ease;
   box-shadow:0 30px 60px rgba(0,0,0,.2),0 10px 20px rgba(0,0,0,.15);border-radius:20px;overflow:hidden}
 /* Spotlight glow behind the diagram */
 .diagram-plane::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;height:70%;background:radial-gradient(ellipse,rgba(255,193,7,.15) 0%,transparent 70%);filter:blur(40px);z-index:-1}
 </style></head><body>
-<div class="wrap" style="min-height:1440px">
+<div class="wrap">
   <h2>📊 状态机图全貌</h2>
   <p class="sub">老婆情绪系统的完整状态转移图 · 8条路径一览</p>
-  <div style="height:2px;background:linear-gradient(90deg,transparent,#2C3E50,transparent);opacity:.15;margin:28px 0 32px"></div>
+  <div style="height:2px;background:linear-gradient(90deg,transparent,#2C3E50,transparent);opacity:.15;margin:8px 0 10px"></div>
   <div class="diagram-stage">
     <div class="diagram-plane">
-      <svg viewBox="0 0 952 720" width="952" height="720" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 952 720" width="900" height="460" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4CAF50" opacity=".7"/></marker>
           <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E6A800" opacity=".7"/></marker>
@@ -146,5 +146,5 @@ svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
     <p class="txt" style="text-align:center">5个状态 · 8条转移路径 · 唯一正确出口：❽</p>
   </div>
 </div>
-<div class="foot">Page 3 / 9 · 3D Enhanced</div>
+<div class="foot">Page 3 / 9</div>
 </body></html>
