@@ -14,7 +14,7 @@ pointer-events:none;opacity:.6}
 .wrap{padding:32px 40px 20px 40px;position:relative;z-index:1}
 h2{font-size:60px;font-weight:900;text-shadow:4px 4px 0 rgba(0,0,0,.1),8px 8px 0 rgba(0,0,0,.05)}
 .sub{font-size:34px;color:#7F8C8D;margin-bottom:20px}
-.card{background:#fff;border-radius:25px;padding:36px 50px;margin:10px 0;box-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.03)}
+.card{background:#fff;border-radius:25px;padding:36px 50px;margin:18px 0;box-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.03)}
 .txt{font-size:32px;line-height:1.55}
 .sm{font-size:26px;color:#7F8C8D}
 svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
@@ -33,7 +33,7 @@ svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
   <div style="height:2px;background:linear-gradient(90deg,transparent,#2C3E50,transparent);opacity:.15;margin:8px 0 10px"></div>
   <div class="diagram-stage">
     <div class="diagram-plane">
-      <svg viewBox="0 0 952 720" width="980" height="560" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 952 720" width="1020" height="650" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4CAF50" opacity=".7"/></marker>
           <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E6A800" opacity=".7"/></marker>
@@ -98,13 +98,15 @@ svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
         <text x="810" y="534" text-anchor="middle" font-size="26" fill="#7F8C8D">Normal（恢复）</text>
 
         <!-- Arrows -->
-        <line x1="415" y1="90" x2="230" y2="240" stroke="#FFC107" stroke-width="2" marker-end="url(#ay)" opacity=".6"/>
-        <rect x="265" y="142" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
-        <text x="310" y="158" text-anchor="middle" font-size="24" font-weight="bold" fill="#E6A800">❶ 忽视预警</text>
+        <!-- ❶ 忽视预警：左侧弧线，从平静态左下到酝酿态顶部 -->
+        <path d="M 390,95 Q 260,130 150,225" stroke="#FFC107" stroke-width="2" fill="none" marker-end="url(#ay)" opacity=".6"/>
+        <rect x="230" y="140" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
+        <text x="275" y="156" text-anchor="middle" font-size="24" font-weight="bold" fill="#E6A800">❶ 忽视预警</text>
 
-        <line x1="545" y1="90" x2="220" y2="245" stroke="#FFC107" stroke-width="2" marker-end="url(#ay)" opacity=".4" stroke-dasharray="5,3"/>
-        <rect x="345" y="132" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
-        <text x="390" y="148" text-anchor="middle" font-size="24" font-weight="bold" fill="#E6A800">❷ "你随意吧"</text>
+        <!-- ❷ "你随意吧"：右侧弧线，绕过避免交叉 -->
+        <path d="M 570,95 Q 650,200 260,240" stroke="#FFC107" stroke-width="2" fill="none" marker-end="url(#ay)" opacity=".4" stroke-dasharray="5,3"/>
+        <rect x="440" y="140" width="130" height="22" rx="4" fill="white" fill-opacity=".92"/>
+        <text x="505" y="156" text-anchor="middle" font-size="24" font-weight="bold" fill="#E6A800">❷ "你随意吧"</text>
 
         <line x1="250" y1="275" x2="370" y2="275" stroke="#F44336" stroke-width="2" marker-end="url(#ar)" opacity=".6"/>
         <rect x="275" y="253" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
@@ -114,13 +116,15 @@ svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
         <rect x="610" y="253" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
         <text x="655" y="269" text-anchor="middle" font-size="24" font-weight="bold" fill="#2196F3">❹ 无人劝阻</text>
 
-        <line x1="415" y1="320" x2="210" y2="480" stroke="#9C27B0" stroke-width="2" marker-end="url(#ap)" opacity=".6"/>
-        <rect x="270" y="368" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
-        <text x="315" y="384" text-anchor="middle" font-size="24" font-weight="bold" fill="#9C27B0">❺ 道歉失败</text>
+        <!-- ❺ 道歉失败：爆发态→阴天态，下方弧线 -->
+        <path d="M 400,320 Q 200,430 155,475" stroke="#9C27B0" stroke-width="2" fill="none" marker-end="url(#ap)" opacity=".6"/>
+        <rect x="210" y="400" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
+        <text x="255" y="416" text-anchor="middle" font-size="24" font-weight="bold" fill="#9C27B0">❺ 道歉失败</text>
 
-        <line x1="115" y1="480" x2="430" y2="320" stroke="#F44336" stroke-width="2" marker-end="url(#ar)" opacity=".6"/>
-        <rect x="180" y="380" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
-        <text x="225" y="396" text-anchor="middle" font-size="24" font-weight="bold" fill="#F44336">❻ 二次爆发</text>
+        <!-- ❻ 二次爆发：阴天态→爆发态，上方弧线，避免与❺交叉 -->
+        <path d="M 260,480 Q 440,370 460,320" stroke="#F44336" stroke-width="2" fill="none" marker-end="url(#ar)" opacity=".6"/>
+        <rect x="330" y="375" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
+        <text x="375" y="391" text-anchor="middle" font-size="24" font-weight="bold" fill="#F44336">❻ 二次爆发</text>
 
         <line x1="810" y1="310" x2="810" y2="480" stroke="#4CAF50" stroke-width="2" marker-end="url(#ag)" opacity=".6"/>
         <rect x="818" y="378" width="90" height="22" rx="4" fill="white" fill-opacity=".92"/>
@@ -132,17 +136,17 @@ svg text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}
 
         <!-- Legend with depth -->
         <g>
-          <rect x="660" y="590" width="280" height="120" rx="10" fill="white" fill-opacity=".92" stroke="#e0e0e0" stroke-width="1" filter="url(#nodeShadow)"/>
-          <text x="675" y="612" font-size="28" font-weight="bold" fill="#2C3E50">路径说明</text>
-          <text x="675" y="634" font-size="24" fill="#666">❶❷ 进入酝酿：高危信号出现</text>
-          <text x="675" y="654" font-size="24" fill="#666">❸❹❻ 升级：忽视→爆发→冷冻</text>
-          <text x="675" y="674" font-size="24" fill="#666">❺ 降级失败：假恢复后复发</text>
-          <text x="675" y="694" font-size="21" fill="#4CAF50" font-weight="bold">❽ 真正恢复：认真听她说话</text>
+          <rect x="555" y="590" width="390" height="125" rx="10" fill="white" fill-opacity=".92" stroke="#e0e0e0" stroke-width="1" filter="url(#nodeShadow)"/>
+          <text x="575" y="614" font-size="26" font-weight="bold" fill="#2C3E50">路径说明</text>
+          <text x="575" y="638" font-size="24" fill="#666">❶❷ 进入酝酿：高危信号出现</text>
+          <text x="575" y="662" font-size="24" fill="#666">❸❹❻ 升级：忽视→爆发→冷冻</text>
+          <text x="575" y="686" font-size="24" fill="#666">❺ 降级失败：假恢复后复发</text>
+          <text x="575" y="708" font-size="22" fill="#4CAF50" font-weight="bold">❽ 真正恢复：认真听她说话</text>
         </g>
       </svg>
     </div>
   </div>
-  <div class="card">
+  <div class="card" style="margin-top:60px">
     <p class="txt" style="text-align:center">5个状态 · 8条转移路径 · 唯一正确出口：❽</p>
   </div>
 </div>
