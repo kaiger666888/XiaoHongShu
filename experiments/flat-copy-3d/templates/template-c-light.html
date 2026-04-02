@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模板C：光影空间</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; display: flex; gap: 60px; padding: 60px; justify-content: center; flex-wrap: wrap; font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .cover { width: 1080px; height: 1440px; position: relative; overflow: hidden; flex-shrink: 0; }
+  .label { color: #555; font-size: 13px; text-align: center; margin-top: 16px; letter-spacing: 2px; }
+
+  .cover-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #1a1425 0%, #0f0f1a 50%, #1a1425 100%);
+  }
+
+  /* Light source */
+  .light-source {
+    position: absolute; top: -80px; right: -40px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,200,120,0.15) 0%, rgba(255,180,100,0.05) 40%, transparent 70%);
+    border-radius: 50%;
+  }
+  .light-source-2 {
+    position: absolute; bottom: 200px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(120,100,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* Spotlight cone */
+  .spotlight {
+    position: absolute; top: -60px; right: 180px;
+    width: 0; height: 0;
+    border-left: 200px solid transparent;
+    border-right: 200px solid transparent;
+    border-top: 600px solid rgba(255,200,120,0.02);
+    transform: rotate(-15deg);
+  }
+
+  /* Top info */
+  .top-info {
+    position: absolute; top: 100px; left: 80px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .top-tag {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 10px 20px;
+    color: rgba(255,255,255,0.4);
+    font-size: 20px;
+    letter-spacing: 4px;
+    width: fit-content;
+  }
+  .top-tag .num {
+    color: rgba(255,200,120,0.5);
+    font-weight: 700;
+    font-size: 22px;
+  }
+
+  /* Main title with dramatic lighting */
+  .light-title {
+    position: absolute;
+    top: 50%; left: 80px; transform: translateY(-54%);
+    font-size: 118px;
+    font-weight: 900;
+    color: #f0e6d3;
+    text-shadow:
+      -3px -3px 1px rgba(255,255,255,0.08),
+      0 0 40px rgba(255,200,120,0.05),
+      5px 5px 12px rgba(0,0,0,0.6),
+      8px 8px 24px rgba(0,0,0,0.3),
+      15px 15px 40px rgba(0,0,0,0.2);
+    letter-spacing: 6px;
+    line-height: 1.4;
+    width: 860px;
+  }
+
+  /* Highlighted word */
+  .highlight {
+    color: #ffcca0;
+    text-shadow:
+      -3px -3px 1px rgba(255,255,255,0.12),
+      0 0 30px rgba(255,200,120,0.15),
+      5px 5px 12px rgba(0,0,0,0.6),
+      0 0 60px rgba(255,180,100,0.08);
+  }
+
+  /* Story subtitle */
+  .story-sub {
+    position: absolute;
+    top: 50%; left: 80px; transform: translateY(50px);
+    font-size: 28px;
+    color: rgba(240,230,211,0.3);
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.4);
+    letter-spacing: 4px;
+    font-weight: 300;
+  }
+
+  /* Floor reflection */
+  .floor-glow {
+    position: absolute; bottom: 180px; left: 100px;
+    width: 600px; height: 80px;
+    background: radial-gradient(ellipse, rgba(255,200,120,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* Bottom section */
+  .bottom-section {
+    position: absolute; bottom: 80px; left: 80px; right: 80px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .bottom-tags { display: flex; gap: 12px; flex-wrap: wrap; }
+  .bottom-tag {
+    color: rgba(255,255,255,0.15);
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 4px;
+  }
+  .page-num {
+    color: rgba(255,200,120,0.15);
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* Vertical line accent */
+  .v-line {
+    position: absolute; top: 300px; left: 60px;
+    width: 1px; height: 200px;
+    background: linear-gradient(180deg, transparent, rgba(255,200,120,0.1), transparent);
+  }
+</style>
+</head>
+<body>
+
+<!-- Variant 1: 北漂故事 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="light-source"></div>
+    <div class="light-source-2"></div>
+    <div class="spotlight"></div>
+    <div class="v-line"></div>
+    <div class="top-info">
+      <div class="top-tag"><span class="num">01</span> 个人故事</div>
+    </div>
+    <div class="light-title">在<span class="highlight">北京</span>的<br>第七年</div>
+    <div class="story-sub">一个普通北漂的生存实录</div>
+    <div class="floor-glow"></div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#北漂生活</span>
+        <span class="bottom-tag">#真实经历</span>
+      </div>
+      <span class="page-num">01 / 02</span>
+    </div>
+  </div>
+  <div class="label">变体1 · 北漂故事</div>
+</div>
+
+<!-- Variant 2: 创业复盘 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="light-source"></div>
+    <div class="light-source-2"></div>
+    <div class="spotlight"></div>
+    <div class="v-line"></div>
+    <div class="top-info">
+      <div class="top-tag"><span class="num">01</span> 创业反思</div>
+    </div>
+    <div class="light-title">创业失败后<br>我学到的<span class="highlight">事</span></div>
+    <div class="story-sub">烧光200万换来的5个教训</div>
+    <div class="floor-glow"></div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#创业复盘</span>
+        <span class="bottom-tag">#失败经验</span>
+      </div>
+      <span class="page-num">02 / 02</span>
+    </div>
+  </div>
+  <div class="label">变体2 · 创业复盘</div>
+</div>
+
+</body>
+</html>

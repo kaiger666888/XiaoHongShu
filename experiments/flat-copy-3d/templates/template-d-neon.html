@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模板D：霓虹潮流</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050505; display: flex; gap: 60px; padding: 60px; justify-content: center; flex-wrap: wrap; font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .cover { width: 1080px; height: 1440px; position: relative; overflow: hidden; flex-shrink: 0; }
+  .label { color: #555; font-size: 13px; text-align: center; margin-top: 16px; letter-spacing: 2px; }
+
+  .cover-bg {
+    position: absolute; inset: 0;
+    background: #0a0a0a;
+  }
+
+  /* Neon ambient glow background */
+  .neon-ambient {
+    position: absolute; inset: 0;
+  }
+  .neon-ambient::before {
+    content: ''; position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(255,0,222,0.05) 0%, transparent 70%);
+  }
+  .neon-ambient::after {
+    content: ''; position: absolute; bottom: 30%; left: 50%; transform: translate(-50%, 50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,255,255,0.03) 0%, transparent 70%);
+  }
+
+  /* Scan lines */
+  .scanlines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.05) 3px,
+      rgba(0,0,0,0.05) 6px
+    );
+    pointer-events: none;
+  }
+
+  /* Top label with neon border */
+  .top-label {
+    position: absolute; top: 90px; left: 50%; transform: translateX(-50%);
+    font-size: 22px;
+    letter-spacing: 8px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+  }
+  .top-label-border {
+    position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+    width: 300px; height: 46px;
+    border: 1px solid rgba(255,0,222,0.2);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255,0,222,0.05), inset 0 0 10px rgba(255,0,222,0.02);
+  }
+
+  /* Main neon title */
+  .neon-title {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -56%);
+    font-size: 120px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    line-height: 1.35;
+    width: 880px;
+    text-shadow:
+      0 0 7px rgba(255,0,222,0.8),
+      0 0 15px rgba(255,0,222,0.6),
+      0 0 30px rgba(255,0,222,0.4),
+      0 0 60px rgba(255,0,222,0.2),
+      0 0 100px rgba(255,0,222,0.1);
+    letter-spacing: 8px;
+    animation: neon-pulse 4s ease-in-out infinite alternate;
+  }
+
+  /* Accent word in cyan */
+  .neon-cyan {
+    color: #0ff;
+    text-shadow:
+      0 0 7px rgba(0,255,255,0.8),
+      0 0 15px rgba(0,255,255,0.6),
+      0 0 30px rgba(0,255,255,0.4),
+      0 0 60px rgba(0,255,255,0.2);
+  }
+
+  @keyframes neon-pulse {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.7; }
+    94% { opacity: 1; }
+    96% { opacity: 0.8; }
+    97% { opacity: 1; }
+  }
+
+  /* Neon subtitle line */
+  .neon-subtitle {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, 40px);
+    font-size: 26px;
+    letter-spacing: 6px;
+    color: rgba(255,255,255,0.4);
+    text-shadow: 0 0 10px rgba(255,0,222,0.2);
+    font-weight: 400;
+  }
+
+  /* Horizontal neon lines */
+  .h-line-left {
+    position: absolute; top: 50%; left: 40px; transform: translateY(-56px);
+    width: 80px; height: 2px;
+    background: rgba(0,255,255,0.3);
+    box-shadow: 0 0 8px rgba(0,255,255,0.2);
+  }
+  .h-line-right {
+    position: absolute; top: 50%; right: 40px; transform: translateY(-56px);
+    width: 80px; height: 2px;
+    background: rgba(255,0,222,0.3);
+    box-shadow: 0 0 8px rgba(255,0,222,0.2);
+  }
+
+  /* Bottom section */
+  .bottom-section {
+    position: absolute; bottom: 80px; left: 80px; right: 80px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .bottom-tags { display: flex; gap: 16px; }
+  .bottom-tag {
+    color: rgba(255,255,255,0.2);
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 10px 20px;
+    border: 1px solid rgba(255,0,222,0.1);
+    border-radius: 4px;
+  }
+  .page-num {
+    color: rgba(0,255,255,0.15);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(0,255,255,0.1);
+  }
+
+  /* Corner brackets */
+  .bracket { position: absolute; width: 30px; height: 30px; }
+  .bracket-tl { top: 50px; left: 50px; border-top: 2px solid rgba(255,0,222,0.2); border-left: 2px solid rgba(255,0,222,0.2); }
+  .bracket-tr { top: 50px; right: 50px; border-top: 2px solid rgba(0,255,255,0.2); border-right: 2px solid rgba(0,255,255,0.2); }
+  .bracket-bl { bottom: 50px; left: 50px; border-bottom: 2px solid rgba(0,255,255,0.2); border-left: 2px solid rgba(0,255,255,0.2); }
+  .bracket-br { bottom: 50px; right: 50px; border-bottom: 2px solid rgba(255,0,222,0.2); border-right: 2px solid rgba(255,0,222,0.2); }
+</style>
+</head>
+<body>
+
+<!-- Variant 1: AI工具 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="neon-ambient"></div>
+    <div class="scanlines"></div>
+    <div class="bracket bracket-tl"></div>
+    <div class="bracket bracket-tr"></div>
+    <div class="bracket bracket-bl"></div>
+    <div class="bracket bracket-br"></div>
+    <div class="top-label-border"></div>
+    <div class="top-label">AI · 未来已来</div>
+    <div class="h-line-left"></div>
+    <div class="h-line-right"></div>
+    <div class="neon-title">AI工具<br>彻底改变工作</div>
+    <div class="neon-subtitle">2024年最值得关注的10款神器</div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#AI工具</span>
+        <span class="bottom-tag">#效率革命</span>
+      </div>
+      <span class="page-num">01 / 02</span>
+    </div>
+  </div>
+  <div class="label">变体1 · AI工具推荐</div>
+</div>
+
+<!-- Variant 2: 编程 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="neon-ambient"></div>
+    <div class="scanlines"></div>
+    <div class="bracket bracket-tl"></div>
+    <div class="bracket bracket-tr"></div>
+    <div class="bracket bracket-bl"></div>
+    <div class="bracket bracket-br"></div>
+    <div class="top-label-border"></div>
+    <div class="top-label">CODE · 技术前沿</div>
+    <div class="h-line-left"></div>
+    <div class="h-line-right"></div>
+    <div class="neon-title">用<span class="neon-cyan">AI</span>写代码<br>是什么体验</div>
+    <div class="neon-subtitle">Cursor + Claude 实战一周报告</div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#AI编程</span>
+        <span class="bottom-tag">#开发者工具</span>
+      </div>
+      <span class="page-num">02 / 02</span>
+    </div>
+  </div>
+  <div class="label">变体2 · AI编程体验</div>
+</div>
+
+</body>
+</html>

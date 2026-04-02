@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书立体封面模板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    min-height: 100vh;
+    padding: 60px 40px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .page-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    letter-spacing: 3px;
+  }
+  .page-sub {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 60px;
+    letter-spacing: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+
+  .template-card {
+    background: #12121a;
+    border: 1px solid #1e1e2e;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+  .template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .thumb-wrapper {
+    width: 100%;
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+    background: #0d0d0d;
+  }
+  .thumb-wrapper iframe {
+    width: 1080px;
+    height: 1440px;
+    border: none;
+    transform-origin: top left;
+    pointer-events: none;
+  }
+
+  .template-info {
+    padding: 24px 28px;
+  }
+  .template-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ccc;
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+  }
+  .template-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+    letter-spacing: 1px;
+  }
+  .template-tags {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #666;
+    letter-spacing: 1px;
+  }
+  .template-link {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #764ba2;
+    text-decoration: none;
+    letter-spacing: 1px;
+  }
+  .template-link:hover { text-decoration: underline; }
+
+  .specs {
+    margin-top: 60px;
+    padding: 32px;
+    background: #12121a;
+    border: 1px solid #1e1e2e;
+    border-radius: 16px;
+  }
+  .specs h3 {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  .spec-item { font-size: 13px; color: #555; line-height: 1.8; }
+  .spec-item strong { color: #888; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1 class="page-title">小红书立体封面模板</h1>
+  <p class="page-sub">4 种纯 CSS 立体化风格 · 1080×1440 · 可截图直接用</p>
+
+  <div class="grid">
+
+    <!-- Template A -->
+    <div class="template-card" onclick="window.open('templates/template-a-emboss.html')">
+      <div class="thumb-wrapper" id="thumb-a"></div>
+      <div class="template-info">
+        <div class="template-name">A · 浮雕知识卡</div>
+        <div class="template-desc">深色背景 + 浮雕标题，文字如同从背景中雕刻而出。高级内敛，适合知识分享、读书笔记类内容。</div>
+        <div class="template-tags">
+          <span class="tag">知识分享</span>
+          <span class="tag">读书笔记</span>
+          <span class="tag">思维模型</span>
+          <span class="tag">学习方法</span>
+        </div>
+        <a class="template-link" href="templates/template-a-emboss.html">查看完整模板 →</a>
+      </div>
+    </div>
+
+    <!-- Template B -->
+    <div class="template-card" onclick="window.open('templates/template-b-metal.html')">
+      <div class="thumb-wrapper" id="thumb-b"></div>
+      <div class="template-info">
+        <div class="template-name">B · 金属质感</div>
+        <div class="template-desc">金色渐变标题 + 拉丝金属背景，奢华质感。适合职场干货、财富思维、个人成长类内容。</div>
+        <div class="template-tags">
+          <span class="tag">职场干货</span>
+          <span class="tag">财富思维</span>
+          <span class="tag">个人成长</span>
+          <span class="tag">效率提升</span>
+        </div>
+        <a class="template-link" href="templates/template-b-metal.html">查看完整模板 →</a>
+      </div>
+    </div>
+
+    <!-- Template C -->
+    <div class="template-card" onclick="window.open('templates/template-c-light.html')">
+      <div class="thumb-wrapper" id="thumb-c"></div>
+      <div class="template-info">
+        <div class="template-name">C · 光影空间</div>
+        <div class="template-desc">模拟戏剧性光源 + 投射阴影，营造故事感。适合个人经历、创业故事、情感类内容。</div>
+        <div class="template-tags">
+          <span class="tag">个人故事</span>
+          <span class="tag">创业复盘</span>
+          <span class="tag">真实经历</span>
+          <span class="tag">情感共鸣</span>
+        </div>
+        <a class="template-link" href="templates/template-c-light.html">查看完整模板 →</a>
+      </div>
+    </div>
+
+    <!-- Template D -->
+    <div class="template-card" onclick="window.open('templates/template-d-neon.html')">
+      <div class="thumb-wrapper" id="thumb-d"></div>
+      <div class="template-info">
+        <div class="template-name">D · 霓虹潮流</div>
+        <div class="template-desc">赛博朋克风霓虹灯效果 + 扫描线，科技感拉满。适合AI工具、编程开发、科技前沿类内容。</div>
+        <div class="template-tags">
+          <span class="tag">AI工具</span>
+          <span class="tag">编程开发</span>
+          <span class="tag">科技前沿</span>
+          <span class="tag">效率工具</span>
+        </div>
+        <a class="template-link" href="templates/template-d-neon.html">查看完整模板 →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="specs">
+    <h3>使用说明</h3>
+    <div class="specs-grid">
+      <div class="spec-item"><strong>尺寸：</strong>1080 × 1440px（小红书 3:4）</div>
+      <div class="spec-item"><strong>技术：</strong>纯 CSS，无外部依赖</div>
+      <div class="spec-item"><strong>使用：</strong>浏览器打开 → 截图即可</div>
+      <div class="spec-item"><strong>定制：</strong>修改 HTML 中的文字和颜色</div>
+      <div class="spec-item"><strong>变体：</strong>每个模板含 2-3 个主题示例</div>
+      <div class="spec-item"><strong>建议：</strong>用 1x 缩放截图保证清晰度</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const templates = [
+    { id: 'thumb-a', src: 'templates/template-a-emboss.html' },
+    { id: 'thumb-b', src: 'templates/template-b-metal.html' },
+    { id: 'thumb-c', src: 'templates/template-c-light.html' },
+    { id: 'thumb-d', src: 'templates/template-d-neon.html' },
+  ];
+
+  function initThumbnails() {
+    templates.forEach(t => {
+      const wrapper = document.getElementById(t.id);
+      const iframe = document.createElement('iframe');
+      iframe.src = t.src;
+      iframe.setAttribute('loading', 'lazy');
+      wrapper.appendChild(iframe);
+
+      // Scale iframe to fit container
+      function resize() {
+        const rect = wrapper.getBoundingClientRect();
+        const scale = rect.width / 1080;
+        iframe.style.transform = `scale(${scale})`;
+        iframe.style.width = '1080px';
+        iframe.style.height = '1440px';
+        wrapper.style.height = (1440 * scale) + 'px';
+      }
+      resize();
+      window.addEventListener('resize', resize);
+    });
+  }
+
+  window.addEventListener('load', initThumbnails);
+</script>
+
+</body>
+</html>

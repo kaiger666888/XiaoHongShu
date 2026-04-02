@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模板B：金属质感</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; display: flex; gap: 60px; padding: 60px; justify-content: center; flex-wrap: wrap; font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .cover { width: 1080px; height: 1440px; position: relative; overflow: hidden; flex-shrink: 0; }
+  .label { color: #555; font-size: 13px; text-align: center; margin-top: 16px; letter-spacing: 2px; }
+
+  .cover-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #0d0d0d 0%, #1a1a1a 30%, #0d0d0d 100%);
+  }
+  .cover-bg::before {
+    content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 600px;
+    background: radial-gradient(ellipse, rgba(191,149,63,0.06) 0%, transparent 70%);
+  }
+
+  /* Brushed metal texture */
+  .metal-texture {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.003) 2px,
+      rgba(255,255,255,0.003) 4px
+    );
+  }
+
+  /* Top accent bar */
+  .top-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, transparent, #bf953f, #fcf6ba, #bf953f, transparent);
+  }
+
+  /* Category label */
+  .cat-label {
+    position: absolute; top: 100px; left: 80px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    color: rgba(191,149,63,0.5);
+    text-transform: uppercase;
+  }
+  .cat-label::after {
+    content: ''; display: block; margin-top: 16px;
+    width: 48px; height: 2px;
+    background: linear-gradient(90deg, #bf953f, transparent);
+  }
+
+  /* Gold title */
+  .gold-title {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -56%);
+    font-size: 116px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.35;
+    width: 900px;
+    background: linear-gradient(
+      180deg,
+      #bf953f 0%,
+      #fcf6ba 20%,
+      #b38728 40%,
+      #fbf5b7 55%,
+      #aa771c 70%,
+      #fcf6ba 85%,
+      #bf953f 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7)) drop-shadow(0 2px 4px rgba(191,149,63,0.15));
+    letter-spacing: 8px;
+  }
+
+  /* Silver subtitle */
+  .silver-subtitle {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, 40px);
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: 8px;
+    background: linear-gradient(180deg, #888 0%, #ccc 30%, #888 60%, #bbb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  }
+
+  /* Bottom decorative line */
+  .bottom-line {
+    position: absolute; bottom: 160px; left: 80px; right: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(191,149,63,0.3), rgba(191,149,63,0.1), transparent);
+  }
+
+  .bottom-section {
+    position: absolute; bottom: 80px; left: 80px; right: 80px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .bottom-left { display: flex; flex-direction: column; gap: 8px; }
+  .bottom-tag {
+    color: rgba(255,255,255,0.2);
+    font-size: 20px;
+    letter-spacing: 3px;
+  }
+  .page-num {
+    color: rgba(191,149,63,0.2);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+  }
+
+  /* Side decorations */
+  .side-diamond {
+    position: absolute; top: 50%; right: 80px; transform: translateY(-50%);
+    width: 12px; height: 12px; border: 1px solid rgba(191,149,63,0.15);
+    transform: translateY(-50%) rotate(45deg);
+  }
+</style>
+</head>
+<body>
+
+<!-- Variant 1: 职场干货 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="metal-texture"></div>
+    <div class="top-bar"></div>
+    <div class="cat-label">职场进阶</div>
+    <div class="gold-title">高效能人士的<br>5个底层习惯</div>
+    <div class="silver-subtitle">那些拉开差距的微小改变</div>
+    <div class="side-diamond"></div>
+    <div class="bottom-line"></div>
+    <div class="bottom-section">
+      <div class="bottom-left">
+        <span class="bottom-tag">#自我管理</span>
+        <span class="bottom-tag">#效率提升</span>
+      </div>
+      <span class="page-num">01</span>
+    </div>
+  </div>
+  <div class="label">变体1 · 高效能习惯</div>
+</div>
+
+<!-- Variant 2: 搞钱 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="metal-texture"></div>
+    <div class="top-bar"></div>
+    <div class="cat-label">财富思维</div>
+    <div class="gold-title">普通人如何<br>建立被动收入</div>
+    <div class="silver-subtitle">从工资依赖到资产驱动的路径</div>
+    <div class="side-diamond"></div>
+    <div class="bottom-line"></div>
+    <div class="bottom-section">
+      <div class="bottom-left">
+        <span class="bottom-tag">#理财思维</span>
+        <span class="bottom-tag">#财务自由</span>
+      </div>
+      <span class="page-num">02</span>
+    </div>
+  </div>
+  <div class="label">变体2 · 被动收入</div>
+</div>
+
+<!-- Variant 3: 读书 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="metal-texture"></div>
+    <div class="top-bar"></div>
+    <div class="cat-label">认知升级</div>
+    <div class="gold-title">改变我人生的<br>10本书</div>
+    <div class="silver-subtitle">每一本都值得读三遍</div>
+    <div class="side-diamond"></div>
+    <div class="bottom-line"></div>
+    <div class="bottom-section">
+      <div class="bottom-left">
+        <span class="bottom-tag">#读书笔记</span>
+        <span class="bottom-tag">#深度阅读</span>
+      </div>
+      <span class="page-num">03</span>
+    </div>
+  </div>
+  <div class="label">变体3 · 改变人生的好书</div>
+</div>
+
+</body>
+</html>

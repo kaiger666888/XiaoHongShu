@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模板A：浮雕知识卡</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; display: flex; gap: 60px; padding: 60px; justify-content: center; flex-wrap: wrap; font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .cover { width: 1080px; height: 1440px; position: relative; overflow: hidden; flex-shrink: 0; }
+  .label { color: #555; font-size: 13px; text-align: center; margin-top: 16px; letter-spacing: 2px; }
+
+  /* === Cover shared === */
+  .cover-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+  }
+  .cover-bg::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.03) 0%, transparent 60%);
+  }
+  .cover-bg::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 400px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.3));
+  }
+
+  /* Subtle grid pattern */
+  .grid-pattern {
+    position: absolute; inset: 0; opacity: 0.04;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Top tag */
+  .top-tag {
+    position: absolute; top: 80px; left: 80px;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 40px;
+    padding: 12px 28px;
+    color: rgba(255,255,255,0.5);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 3px;
+  }
+  .top-tag .dot { width: 8px; height: 8px; border-radius: 50%; background: #e2b04a; }
+
+  /* Main emboss title */
+  .emboss-title {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -54%);
+    font-size: 120px;
+    font-weight: 900;
+    color: #1a1a2e;
+    text-shadow:
+      -2px -2px 1px rgba(255,255,255,0.12),
+      -1px -1px 1px rgba(255,255,255,0.08),
+      2px 2px 3px rgba(0,0,0,0.7),
+      4px 4px 8px rgba(0,0,0,0.4),
+      0 0 20px rgba(0,0,0,0.2);
+    letter-spacing: 12px;
+    text-align: center;
+    line-height: 1.4;
+    width: 880px;
+  }
+
+  /* Subtitle line */
+  .subtitle-line {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, 30px);
+    display: flex; align-items: center; gap: 20px;
+    color: rgba(255,255,255,0.25);
+    font-size: 28px;
+    letter-spacing: 6px;
+    font-weight: 400;
+  }
+  .subtitle-line::before, .subtitle-line::after {
+    content: ''; width: 60px; height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* Bottom section */
+  .bottom-section {
+    position: absolute; bottom: 80px; left: 80px; right: 80px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .bottom-tags { display: flex; gap: 16px; }
+  .bottom-tag {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 14px 24px;
+    color: rgba(255,255,255,0.35);
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+  .page-num {
+    color: rgba(255,255,255,0.15);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+
+  /* Corner decorations */
+  .corner { position: absolute; width: 60px; height: 60px; }
+  .corner-tl { top: 60px; left: 60px; border-top: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.08); }
+  .corner-tr { top: 60px; right: 60px; border-top: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); }
+  .corner-bl { bottom: 60px; left: 60px; border-bottom: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.08); }
+  .corner-br { bottom: 60px; right: 60px; border-bottom: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); }
+
+  /* Accent line */
+  .accent-line {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -56px);
+    width: 200px; height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(226,176,74,0.4), transparent);
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Variant 1: AI思维模型 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="grid-pattern"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <div class="top-tag"><span class="dot"></span>AI · 认知升级</div>
+    <div class="emboss-title">AI时代必备的<br>3个思维模型</div>
+    <div class="accent-line"></div>
+    <div class="subtitle-line">普通人也能掌握的顶级思考框架</div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#深度思考</span>
+        <span class="bottom-tag">#第一性原理</span>
+      </div>
+      <span class="page-num">01 / 03</span>
+    </div>
+  </div>
+  <div class="label">变体1 · AI思维模型</div>
+</div>
+
+<!-- Variant 2: 35岁转行 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="grid-pattern"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <div class="top-tag"><span class="dot"></span>职业 · 人生选择</div>
+    <div class="emboss-title">35岁转行<br>我做对了这几件事</div>
+    <div class="accent-line"></div>
+    <div class="subtitle-line">从迷茫到清晰的三年复盘</div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#转行经验</span>
+        <span class="bottom-tag">#职业规划</span>
+      </div>
+      <span class="page-num">02 / 03</span>
+    </div>
+  </div>
+  <div class="label">变体2 · 35岁转行</div>
+</div>
+
+<!-- Variant 3: 月薪增长 -->
+<div>
+  <div class="cover">
+    <div class="cover-bg"></div>
+    <div class="grid-pattern"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <div class="top-tag"><span class="dot"></span>成长 · 搞钱思维</div>
+    <div class="emboss-title">月薪3K到3W<br>的增长公式</div>
+    <div class="accent-line"></div>
+    <div class="subtitle-line">不是鸡汤，是可复制的路径</div>
+    <div class="bottom-section">
+      <div class="bottom-tags">
+        <span class="bottom-tag">#薪资跃迁</span>
+        <span class="bottom-tag">#个人成长</span>
+      </div>
+      <span class="page-num">03 / 03</span>
+    </div>
+  </div>
+  <div class="label">变体3 · 月薪增长</div>
+</div>
+
+</body>
+</html>
