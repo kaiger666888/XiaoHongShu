@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成分能不能一起涂？一张图告诉你</title>
+<script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: #FFF8F0;
+  overflow-x: hidden;
+  color: #3D3D3D;
+}
+
+#app {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+/* Controls */
+.controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+.ctrl-btn {
+  padding: 8px 16px;
+  border: 2px solid #E8D5C4;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.95);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Noto Sans SC', sans-serif;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.ctrl-btn:hover { background: #FFF0E6; border-color: #D4A574; }
+.ctrl-btn.active { background: #F5D5C0; border-color: #D4A574; }
+
+/* Progress bar */
+.progress-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #F0E6DC;
+  z-index: 100;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #E8A0BF, #B8A9C9);
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.96);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 200;
+  border: 1px solid #E8D5C4;
+}
+
+.tooltip.show { opacity: 1; }
+
+.tooltip h4 {
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #6B4E71;
+}
+
+.tooltip .tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin: 2px;
+}
+
+/* Info card */
+.info-card {
+  position: absolute;
+  padding: 20px;
+  background: rgba(255,255,255,0.98);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  max-width: 300px;
+  font-size: 13px;
+  line-height: 1.8;
+  z-index: 200;
+  display: none;
+  border: 2px solid #E8D5C4;
+}
+
+.info-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #6B4E71;
+}
+
+.info-card .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}
+
+/* Narration text */
+.narration {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.95);
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  z-index: 100;
+  display: none;
+  border: 1px solid #E8D5C4;
+}
+
+/* Cover */
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  z-index: 50;
+}
+
+.cover h1 {
+  font-family: 'ZCOOL XiaoWei', serif;
+  font-size: 28px;
+  color: #6B4E71;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.cover .subtitle {
+  font-size: 14px;
+  color: #A09090;
+}
+
+.cover .watermark {
+  position: absolute;
+  bottom: 20px;
+  font-size: 12px;
+  color: #C0B0A0;
+}
+
+.start-btn {
+  margin-top: 30px;
+  padding: 14px 40px;
+  background: linear-gradient(135deg, #E8A0BF, #B8A9C9);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-family: 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(184,169,201,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  pointer-events: auto;
+}
+
+.start-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(184,169,201,0.6);
+}
+
+.start-btn:active {
+  transform: scale(0.98);
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <canvas id="mainCanvas"></canvas>
+  
+  <div class="cover" id="cover">
+    <h1>成分能不能一起涂？</h1>
+    <p class="subtitle">一张图告诉你 · 护肤成分兼容性全解析</p>
+    <button class="start-btn" id="startBtn" onclick="startPresentation()">▶ 开始讲解</button>
+    <p class="watermark">程序员用UML讲美妆系列 📐</p>
+  </div>
+  
+  <div class="tooltip" id="tooltip"></div>
+  <div class="info-card" id="infoCard">
+    <span class="close-btn" onclick="closeInfoCard()">✕</span>
+    <div id="infoCardContent"></div>
+  </div>
+  
+  <div class="narration" id="narration"></div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn active" id="btnAuto" onclick="setMode('auto')">▶ 自动播放</button>
+  <button class="ctrl-btn" id="btnManual" onclick="setMode('manual')">✋ 手动浏览</button>
+  <button class="ctrl-btn" id="btnTTS" onclick="toggleTTS()">🔊 语音</button>
+  <button class="ctrl-btn" id="btnRestart" onclick="restart()">↺ 重播</button>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<script>
+// ============ DATA ============
+const ingredients = [
+  { id: 'vc', name: '原型VC', en: 'Vitamin C', cat: '美白', color: '#FFB6C1', x: 120, y: 80, desc: '强效美白抗氧化，需要低pH环境(pH<3.5)才能有效吸收。怕光怕氧化，建议晚上使用。', skin: '耐受肌', caution: '原型VC浓度15%已足够，过高徒增刺激' },
+  { id: 'nia', name: '烟酰胺', en: 'Niacinamide', cat: '美白', color: '#DDA0DD', x: 320, y: 80, desc: '万金油成分，美白抗炎修复保湿样样行。阻断黑色素向表皮转运。', skin: '所有肤质', caution: '建立耐受从2-3%开始，最高可用10%' },
+  { id: 'tra', name: '传明酸', en: 'Tranexamic Acid', cat: '美白', color: '#E6C9A8', x: 520, y: 80, desc: '抑制酪氨酸酶活性，从源头减少黑色素生成。温和不刺激，适合淡斑。', skin: '所有肤质', caution: '口服版本需遵医嘱，护肤品中浓度2-5%' },
+  { id: 'aha', name: '果酸', en: 'AHA', cat: '酸类', color: '#FFD700', x: 120, y: 220, desc: '水溶性去角质成分（甘醇酸、乳酸等），提亮肤色、改善粗糙。', skin: '非敏感肌', caution: '使用后必须防晒！建议从低浓度5%开始' },
+  { id: 'bha', name: '水杨酸', en: 'BHA', cat: '酸类', color: '#FFA500', x: 320, y: 220, desc: '脂溶性酸，能深入毛孔溶解油脂。控油、疏通毛孔、抗炎。', skin: '油痘肌', caution: '浓度2%为OTC上限，使用后注意保湿' },
+  { id: 'ret', name: 'A醇', en: 'Retinol', cat: '抗老', color: '#FF6B6B', x: 520, y: 220, desc: '抗老金标准，促进细胞代谢、刺激胶原蛋白生成。需建立耐受。', skin: '非敏感肌', caution: '孕妇禁用！从0.025%开始，晚上使用后防晒' },
+  { id: 'pep', name: '胜肽', en: 'Peptides', cat: '抗老', color: '#98D8C8', x: 120, y: 360, desc: '信号肽促胶原生成、神经肽放松表情纹、载体肽输送铜离子修复。温和高效。', skin: '所有肤质', caution: '种类繁多，按需选择；注意产品配方中的其他成分' },
+  { id: 'pxy', name: '玻色因', en: 'Pro-Xylane', cat: '抗老', color: '#C9B1FF', x: 320, y: 360, desc: '欧莱雅专利，促进糖胺聚糖合成，从真皮层撑起皮肤。温和无刺激。', skin: '所有肤质', caution: '需长期使用(4-8周)才能看到效果' },
+  { id: 'cer', name: '神经酰胺', en: 'Ceramide', cat: '修复', color: '#A8D8EA', x: 520, y: 360, desc: '构成皮肤屏障的关键脂质，修复受损屏障、锁住水分。敏感肌救星。', skin: '所有肤质（尤其敏感肌）', caution: '搭配胆固醇和脂肪酸效果更佳' },
+  { id: 'ha', name: '玻尿酸', en: 'Hyaluronic Acid', cat: '保湿', color: '#B5EAD7', x: 120, y: 500, desc: '万能保湿选手，大分子锁水、小分子深层补水。与所有成分兼容。', skin: '所有肤质', caution: '需要在湿润环境下使用，干脸涂反而吸水' },
+  { id: 'vcd', name: 'VC衍生物', en: 'VC Derivatives', cat: '美白', color: '#FFB6C1', x: 320, y: 500, desc: 'VC的温和替代品（AA2G、VC-IP等），不需要低pH环境，白天也能用。', skin: '所有肤质', caution: '效果比原型VC温和缓慢，但更稳定方便' },
+  { id: 'sun', name: '防晒', en: 'Sunscreen', cat: '防护', color: '#FFEAA7', x: 520, y: 500, desc: '护肤最后一步也是最重要的一步！防止光老化、色素沉着。', skin: '所有肤质', caution: 'SPF30+ PA+++为日常最低标准' }
+];
+
+const relations = [
+  // ✅ Compatible (green)
+  { from: 'nia', to: 'ret', type: 'compatible', label: '✅ 神仙CP', detail: '烟酰胺降低A醇刺激，协同抗老美白' },
+  { from: 'nia', to: 'tra', type: 'compatible', label: '✅ 美白加倍', detail: '双通路抑制黑色素，协同淡斑' },
+  { from: 'pxy', to: 'pep', type: 'compatible', label: '✅ 抗老黄金组合', detail: '玻色因撑底+胜肽加固，互补抗老' },
+  { from: 'pep', to: 'cer', type: 'compatible', label: '✅ 修复+抗老', detail: '抗老同时修复屏障，敏感肌友好' },
+  { from: 'ha', to: 'nia', type: 'compatible', label: '✅ 百搭', detail: '玻尿酸与所有成分兼容' },
+  { from: 'ha', to: 'ret', type: 'compatible', label: '✅ 百搭', detail: '保湿修复，降低刺激' },
+  { from: 'ha', to: 'vc', type: 'compatible', label: '✅ 百搭', detail: '基础保湿不冲突' },
+  { from: 'ha', to: 'aha', type: 'compatible', label: '✅ 百搭', detail: '酸后保湿必备' },
+  { from: 'cer', to: 'ret', type: 'compatible', label: '✅ 降刺激', detail: '神经酰胺修复屏障，减轻A醇脱皮' },
+  { from: 'vc', to: 'tra', type: 'compatible', label: '✅ 美白协同', detail: '不同通路抑制黑色素' },
+  // ⚠️ Separate (yellow)
+  { from: 'vc', to: 'nia', type: 'separate', label: '⚠️ 建议分开', detail: '高浓度下烟酰胺可能转化为烟酸刺激皮肤；低浓度可同用' },
+  { from: 'nia', to: 'aha', type: 'separate', label: '⚠️ 间隔30min', detail: '烟酰胺在强酸环境中可能分解为烟酸' },
+  { from: 'nia', to: 'bha', type: 'separate', label: '⚠️ 间隔30min', detail: '同上，避免低pH环境直接接触' },
+  { from: 'ret', to: 'vc', type: 'separate', label: '⚠️ 早C晚A', detail: '两者都是活性成分，分开时间使用效果更佳' },
+  // ❌ Conflict (red)
+  { from: 'aha', to: 'bha', type: 'conflict', label: '❌ 双重刺激', detail: '两种酸叠加去角质，屏障损伤风险加倍' },
+  { from: 'ret', to: 'aha', type: 'conflict', label: '❌ 双重刺激', detail: 'A醇促代谢+果酸去角质，双重剥脱伤屏障' },
+  { from: 'ret', to: 'bha', type: 'conflict', label: '❌ 双重刺激', detail: '双重刺激性成分叠加，容易烂脸' }
+];
+
+const narrationScript = [
+  "闺蜜们！你有没有过这种经历——买了一堆精华，涂完发现脸红了？今天我用一张图，帮你搞懂护肤成分到底能不能一起涂！",
+  "先认识一下常见的12位主角。美白组的VC、烟酰胺、传明酸；酸类的果酸和水杨酸；抗老三巨头A醇、胜肽、玻色因；还有修复担当神经酰胺、保湿万能的玻尿酸，别忘了防晒！",
+  "好消息先说！有些成分在一起简直是1加1大于2。烟酰胺加A醇，这个组合被吹爆了！玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！",
+  "玻尿酸是万能百搭选手！它跟谁都不打架，放心叠。神经酰胺搭配A醇也是绝配，帮你把A醇的刺激拉下来一个档次。",
+  "黄牌警告区！VC和烟酰胺，网上说法很多——其实正常浓度下问题不大，但敏感肌建议早晚分开。A醇和VC也别一起用，经典早C晚A让它们各上各的班。",
+  "红牌来了！果酸加水杨酸，等于双重去角质，屏障直接裂开。A醇加果酸或水杨酸也是一样——两个刺激成分叠加，那是作死不是护肤！",
+  "实操方案来了！经典早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。想美白就传明酸加烟酰胺，想温和抗老就胜肽加玻色因。",
+  "这张成分关系图建议截图收藏！你在搭配成分时踩过什么坑？评论区告诉我！关注我，程序员用UML讲美妆，下一期更精彩！"
+];
+
+// ============ STATE ============
+let canvas, ctx, rc;
+let W, H;
+let currentStep = -1;
+let autoMode = true;
+let ttsEnabled = true;
+let animTimer = null;
+let drawnElements = [];
+let stepElements = [];
+let hoveredLine = null;
+let dpr = 1;
+let started = false;
+let zhVoice = null;
+
+// ============ INIT ============
+function init() {
+  canvas = document.getElementById('mainCanvas');
+  ctx = canvas.getContext('2d');
+  rc = rough.canvas(canvas);
+  
+  resize();
+  window.addEventListener('resize', resize);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('click', onClick);
+  
+  // Build step sequence
+  buildSteps();
+  
+  // Preload voices and find Chinese voice
+  if (window.speechSynthesis) {
+    function loadVoices() {
+      const voices = speechSynthesis.getVoices();
+      zhVoice = voices.find(v => v.lang === 'zh-CN' && v.localService) 
+             || voices.find(v => v.lang.startsWith('zh') && v.localService)
+             || voices.find(v => v.lang === 'zh-CN')
+             || voices.find(v => v.lang.startsWith('zh'))
+             || null;
+      console.log('TTS voice loaded:', zhVoice ? zhVoice.name : 'using default');
+    }
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  
+  // Draw initial state (cover only, don't auto-start)
+  redraw();
+}
+
+function startPresentation() {
+  if (started) return;
+  started = true;
+  
+  // Unlock TTS with user gesture
+  if (window.speechSynthesis) {
+    speechSynthesis.cancel();
+    // Play a silent utterance to fully unlock audio
+    const unlock = new SpeechSynthesisUtterance('');
+    unlock.volume = 0;
+    speechSynthesis.speak(unlock);
+  }
+  
+  // Hide start button, begin animation
+  document.getElementById('startBtn').style.display = 'none';
+  setTimeout(() => nextStep(), 500);
+}
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  const container = document.getElementById('app');
+  W = Math.min(container.clientWidth - 40, 800);
+  H = 620;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  redraw();
+}
+
+// ============ STEP MANAGEMENT ============
+function buildSteps() {
+  stepElements = [
+    // Step 0: title frame
+    { type: 'title' },
+    // Step 1: ingredients
+    { type: 'ingredients' },
+    // Step 2: compatible lines (green)
+    { type: 'relations', filter: r => r.type === 'compatible' },
+    // Step 3: ha and cer connections
+    { type: 'relations', filter: r => r.from === 'ha' || r.to === 'ha' || (r.from === 'cer' && r.to === 'ret') },
+    // Step 4: separate lines (yellow)
+    { type: 'relations', filter: r => r.type === 'separate' },
+    // Step 5: conflict lines (red)
+    { type: 'relations', filter: r => r.type === 'conflict' },
+    // Step 6: summary
+    { type: 'summary' },
+    // Step 7: ending
+    { type: 'ending' }
+  ];
+}
+
+function nextStep() {
+  currentStep++;
+  if (currentStep >= stepElements.length) return;
+  
+  const step = stepElements[currentStep];
+  const progress = ((currentStep + 1) / stepElements.length) * 100;
+  document.getElementById('progressFill').style.width = progress + '%';
+  
+  // Hide cover after step 0
+  if (currentStep >= 1) {
+    document.getElementById('cover').style.display = 'none';
+  }
+  
+  // Show narration
+  if (currentStep < narrationScript.length) {
+    const nar = document.getElementById('narration');
+    nar.style.display = 'block';
+    nar.textContent = narrationScript[currentStep];
+  }
+  
+  // Execute step
+  executeStep(step);
+  
+  // TTS
+  if (ttsEnabled && currentStep < narrationScript.length) {
+    speak(narrationScript[currentStep]);
+  } else {
+    // No TTS - use timer for auto advance
+    if (autoMode && currentStep < stepElements.length - 1) {
+      clearTimeout(animTimer);
+      animTimer = setTimeout(nextStep, 5000);
+    }
+  }
+}
+
+function executeStep(step) {
+  if (step.type === 'title') {
+    // Just show cover, draw empty frame
+    redraw();
+    return;
+  }
+  
+  if (step.type === 'ingredients') {
+    // Animate ingredients appearing one by one
+    ingredients.forEach((ing, i) => {
+      setTimeout(() => {
+        drawnElements.push({ type: 'ingredient', id: ing.id });
+        redraw();
+      }, i * 200);
+    });
+    return;
+  }
+  
+  if (step.type === 'relations') {
+    const filtered = relations.filter(step.filter);
+    filtered.forEach((rel, i) => {
+      setTimeout(() => {
+        drawnElements.push({ type: 'relation', from: rel.from, to: rel.to });
+        redraw();
+      }, i * 400);
+    });
+    return;
+  }
+  
+  if (step.type === 'summary') {
+    // Show all
+    ingredients.forEach(ing => {
+      if (!drawnElements.find(e => e.type === 'ingredient' && e.id === ing.id)) {
+        drawnElements.push({ type: 'ingredient', id: ing.id });
+      }
+    });
+    relations.forEach(rel => {
+      if (!drawnElements.find(e => e.type === 'relation' && e.from === rel.from && e.to === rel.to)) {
+        drawnElements.push({ type: 'relation', from: rel.from, to: rel.to });
+      }
+    });
+    redraw();
+    
+    // Draw legend
+    setTimeout(() => {
+      drawLegend();
+      drawRecipes();
+    }, 300);
+    return;
+  }
+  
+  if (step.type === 'ending') {
+    redraw();
+    drawLegend();
+    drawRecipes();
+  }
+}
+
+// ============ DRAWING ============
+function redraw() {
+  ctx.clearRect(0, 0, W, H);
+  
+  // Background texture
+  drawBackground();
+  
+  // Draw relations first (behind boxes)
+  drawnElements.filter(e => e.type === 'relation').forEach(el => {
+    drawRelation(el.from, el.to);
+  });
+  
+  // Draw ingredient boxes
+  drawnElements.filter(e => e.type === 'ingredient').forEach(el => {
+    drawIngredient(el.id);
+  });
+}
+
+function drawBackground() {
+  ctx.fillStyle = '#FFF8F0';
+  ctx.fillRect(0, 0, W, H);
+  
+  // Subtle dots pattern
+  ctx.fillStyle = 'rgba(200,180,160,0.08)';
+  for (let x = 0; x < W; x += 20) {
+    for (let y = 0; y < H; y += 20) {
+      ctx.beginPath();
+      ctx.arc(x, y, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function getIngredient(id) {
+  return ingredients.find(i => i.id === id);
+}
+
+function getPos(id) {
+  const ing = getIngredient(id);
+  const scaleX = W / 700;
+  const scaleY = H / 620;
+  return { x: ing.x * scaleX + 30, y: ing.y * scaleY + 40 };
+}
+
+function drawIngredient(id) {
+  const ing = getIngredient(id);
+  const pos = getPos(id);
+  const boxW = 120;
+  const boxH = 65;
+  
+  // Rough.js hand-drawn box
+  const box = rc.rectangle(pos.x - boxW/2, pos.y - boxH/2, boxW, boxH, {
+    stroke: ing.color,
+    strokeWidth: 2,
+    fill: ing.color + '20',
+    fillStyle: 'solid',
+    roughness: 1.5,
+    bowing: 2
+  });
+  
+  // Ingredient name
+  ctx.fillStyle = '#3D3D3D';
+  ctx.font = 'bold 14px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(ing.name, pos.x, pos.y - 8);
+  
+  // English name
+  ctx.fillStyle = '#999';
+  ctx.font = '10px "Noto Sans SC", sans-serif';
+  ctx.fillText(ing.en, pos.x, pos.y + 8);
+  
+  // Category tag
+  const tagW = ctx.measureText(ing.cat).width + 12;
+  ctx.fillStyle = ing.color + '40';
+  roundRect(ctx, pos.x - tagW/2, pos.y + 15, tagW, 18, 9);
+  ctx.fill();
+  ctx.fillStyle = '#666';
+  ctx.font = '10px "Noto Sans SC", sans-serif';
+  ctx.fillText(ing.cat, pos.x, pos.y + 28);
+}
+
+function drawRelation(fromId, toId) {
+  const rel = relations.find(r => r.from === fromId && r.to === toId) || relations.find(r => r.to === fromId && r.from === toId);
+  if (!rel) return;
+  
+  const fromPos = getPos(fromId);
+  const toPos = getPos(toId);
+  
+  let color, dash, width;
+  if (rel.type === 'compatible') { color = '#4CAF50'; dash = []; width = 1.5; }
+  else if (rel.type === 'separate') { color = '#FF9800'; dash = [6, 4]; width = 1.5; }
+  else { color = '#F44336'; dash = [4, 4]; width = 2; }
+  
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.setLineDash(dash);
+  ctx.globalAlpha = 0.7;
+  
+  // Draw hand-drawn line
+  rc.line(fromPos.x, fromPos.y, toPos.x, toPos.y, {
+    stroke: color,
+    strokeWidth: width,
+    roughness: 1.2
+  });
+  
+  ctx.restore();
+}
+
+function drawLegend() {
+  const lx = 30;
+  const ly = H - 60;
+  
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  
+  // Legend background
+  rc.rectangle(lx - 10, ly - 10, 300, 55, {
+    stroke: '#E0D0C0',
+    fill: 'rgba(255,255,255,0.9)',
+    fillStyle: 'solid',
+    roughness: 1
+  });
+  
+  ctx.font = '12px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'left';
+  
+  // Green
+  ctx.fillStyle = '#4CAF50';
+  ctx.fillRect(lx, ly, 20, 3);
+  ctx.fillStyle = '#555';
+  ctx.fillText('兼容/增效', lx + 25, ly + 5);
+  
+  // Yellow
+  ctx.fillStyle = '#FF9800';
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(lx + 100, ly + 1); ctx.lineTo(lx + 120, ly + 1); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillText('需间隔', lx + 125, ly + 5);
+  
+  // Red
+  ctx.fillStyle = '#F44336';
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(lx + 190, ly + 1); ctx.lineTo(lx + 210, ly + 1); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillText('冲突', lx + 215, ly + 5);
+  
+  ctx.restore();
+}
+
+function drawRecipes() {
+  const recipes = [
+    { name: '早C晚A', desc: '早VC衍生物+防晒 / 晚A醇+神经酰胺', color: '#FFB6C1' },
+    { name: '美白攻坚', desc: '传明酸+烟酰胺 → 防晒', color: '#DDA0DD' },
+    { name: '温和抗老', desc: '胜肽+玻色因+神经酰胺', color: '#98D8C8' },
+    { name: '刷酸修复', desc: '果酸或水杨酸（选一）→ 神经酰胺修复', color: '#FFD700' }
+  ];
+  
+  const startX = W - 200;
+  const startY = H - 150;
+  
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  
+  rc.rectangle(startX - 10, startY - 10, 190, 145, {
+    stroke: '#E0D0C0',
+    fill: 'rgba(255,255,255,0.9)',
+    fillStyle: 'solid',
+    roughness: 1
+  });
+  
+  ctx.font = 'bold 13px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#6B4E71';
+  ctx.fillText('💡 实用搭配方案', startX, startY + 8);
+  
+  recipes.forEach((r, i) => {
+    const y = startY + 28 + i * 28;
+    ctx.fillStyle = r.color + '60';
+    roundRect(ctx, startX, y - 8, 170, 24, 6);
+    ctx.fill();
+    
+    ctx.font = 'bold 11px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#555';
+    ctx.fillText(r.name, startX + 6, y + 4);
+    
+    ctx.font = '10px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#888';
+    ctx.fillText(r.desc, startX + 6, y + 16);
+  });
+  
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ============ INTERACTION ============
+function onMouseMove(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  
+  // Check if hovering over a drawn relation
+  const tooltip = document.getElementById('tooltip');
+  let found = false;
+  
+  for (const el of drawnElements.filter(e => e.type === 'relation')) {
+    const rel = relations.find(r => (r.from === el.from && r.to === el.to) || (r.to === el.from && r.from === el.to));
+    if (!rel) continue;
+    
+    const fromPos = getPos(el.from);
+    const toPos = getPos(el.to);
+    const dist = pointToLineDistance(mx, my, fromPos.x, fromPos.y, toPos.x, toPos.y);
+    
+    if (dist < 15) {
+      found = true;
+      tooltip.innerHTML = `<h4>${rel.label}</h4><p>${rel.detail}</p>`;
+      tooltip.style.left = (e.clientX + 15) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+      tooltip.classList.add('show');
+      canvas.style.cursor = 'pointer';
+      break;
+    }
+  }
+  
+  if (!found) {
+    tooltip.classList.remove('show');
+    // Check ingredient hover
+    let ingFound = false;
+    for (const el of drawnElements.filter(e => e.type === 'ingredient')) {
+      const pos = getPos(el.id);
+      if (Math.abs(mx - pos.x) < 60 && Math.abs(my - pos.y) < 33) {
+        canvas.style.cursor = 'pointer';
+        ingFound = true;
+        break;
+      }
+    }
+    if (!ingFound) canvas.style.cursor = 'default';
+  }
+}
+
+function onClick(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  
+  for (const el of drawnElements.filter(e => e.type === 'ingredient')) {
+    const pos = getPos(el.id);
+    if (Math.abs(mx - pos.x) < 60 && Math.abs(my - pos.y) < 33) {
+      showInfoCard(el.id, e.clientX, e.clientY);
+      return;
+    }
+  }
+  
+  closeInfoCard();
+}
+
+function showInfoCard(id, cx, cy) {
+  const ing = getIngredient(id);
+  const card = document.getElementById('infoCard');
+  const content = document.getElementById('infoCardContent');
+  
+  // Find related ingredients
+  const related = relations.filter(r => r.from === id || r.to === id).map(r => {
+    const otherId = r.from === id ? r.to : r.from;
+    const other = getIngredient(otherId);
+    return { ...r, other };
+  });
+  
+  let relHtml = related.map(r => {
+    const typeColor = r.type === 'compatible' ? '#4CAF50' : r.type === 'separate' ? '#FF9800' : '#F44336';
+    return `<div style="margin:4px 0"><span style="color:${typeColor}">${r.label}</span> ${r.other.name}</div>`;
+  }).join('');
+  
+  content.innerHTML = `
+    <h3>${ing.name} <small style="color:#999;font-weight:normal">${ing.en}</small></h3>
+    <div style="margin:8px 0"><span class="tag" style="background:${ing.color}40;color:#555">${ing.cat}</span> <span class="tag" style="background:#f0f0f0;color:#666">${ing.skin}</span></div>
+    <p style="margin:8px 0">${ing.desc}</p>
+    <p style="color:#888;font-size:12px">⚠️ ${ing.caution}</p>
+    <div style="margin-top:10px;border-top:1px solid #eee;padding-top:8px">
+      <strong style="font-size:12px;color:#6B4E71">搭配关系：</strong>
+      ${relHtml}
+    </div>
+  `;
+  
+  card.style.display = 'block';
+  card.style.left = Math.min(cx + 15, window.innerWidth - 320) + 'px';
+  card.style.top = Math.min(cy - 20, window.innerHeight - 350) + 'px';
+}
+
+function closeInfoCard() {
+  document.getElementById('infoCard').style.display = 'none';
+}
+
+function pointToLineDistance(px, py, x1, y1, x2, y2) {
+  const A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
+  const dot = A * C + B * D;
+  const lenSq = C * C + D * D;
+  let param = lenSq !== 0 ? dot / lenSq : -1;
+  param = Math.max(0, Math.min(1, param));
+  const xx = x1 + param * C, yy = y1 + param * D;
+  return Math.sqrt((px - xx) * (px - xx) + (py - yy) * (py - yy));
+}
+
+// ============ CONTROLS ============
+function setMode(mode) {
+  autoMode = mode === 'auto';
+  document.getElementById('btnAuto').classList.toggle('active', autoMode);
+  document.getElementById('btnManual').classList.toggle('active', !autoMode);
+  
+  if (autoMode) {
+    clearTimeout(animTimer);
+    animTimer = setTimeout(nextStep, 3000);
+  } else {
+    clearTimeout(animTimer);
+  }
+}
+
+function toggleTTS() {
+  ttsEnabled = !ttsEnabled;
+  document.getElementById('btnTTS').textContent = ttsEnabled ? '🔊 语音' : '🔇 静音';
+  document.getElementById('btnTTS').classList.toggle('active', ttsEnabled);
+  if (!ttsEnabled) speechSynthesis.cancel();
+}
+
+function restart() {
+  speechSynthesis.cancel();
+  clearTimeout(animTimer);
+  currentStep = -1;
+  drawnElements = [];
+  document.getElementById('cover').style.display = 'flex';
+  document.getElementById('startBtn').style.display = 'inline-block';
+  document.getElementById('narration').style.display = 'none';
+  document.getElementById('progressFill').style.width = '0%';
+  closeInfoCard();
+  started = false;
+  redraw();
+}
+
+// ============ TTS ============
+function speak(text) {
+  if (!ttsEnabled || !window.speechSynthesis) return;
+  
+  // Cancel any ongoing speech
+  speechSynthesis.cancel();
+  
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-CN';
+  utter.rate = 0.95;
+  utter.pitch = 1.1;
+  utter.volume = 1;
+  
+  // Use preloaded Chinese voice
+  if (zhVoice) {
+    utter.voice = zhVoice;
+  }
+  
+  utter.onend = () => {
+    // TTS finished naturally - auto advance after a short pause
+    if (autoMode && started) {
+      clearTimeout(animTimer);
+      animTimer = setTimeout(nextStep, 1500);
+    }
+  };
+  
+  utter.onerror = (e) => {
+    console.warn('TTS error:', e.error);
+    // Still advance on error
+    if (autoMode && started) {
+      clearTimeout(animTimer);
+      animTimer = setTimeout(nextStep, 2000);
+    }
+  };
+  
+  speechSynthesis.speak(utter);
+}
+
+// Preload voices
+if (window.speechSynthesis) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+// ============ START ============
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
