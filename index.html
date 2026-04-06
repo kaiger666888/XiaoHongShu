@@ -31,113 +31,122 @@ canvas{display:block;margin:0 auto;cursor:pointer;width:100%}
 </div>
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 <div class="scene-dots" id="sceneDots"></div>
-
 <script>
 // ==================== DATA ====================
 const ingredients = {
-  vc:{name:'原型VC',en:'Vitamin C',cat:'美白',color:'#FFB6C1',desc:'强效美白抗氧化，需低pH(pH<3.5)吸收，怕光怕氧化，建议晚上用',skin:'耐受肌',caution:'15%浓度已够，过高徒增刺激'},
-  nia:{name:'烟酰胺',en:'Niacinamide',cat:'美白',color:'#DDA0DD',desc:'万金油，美白抗炎修复保湿样样行，阻断黑色素转运',skin:'所有肤质',caution:'从2-3%建立耐受，最高10%'},
-  tra:{name:'传明酸',en:'Tranexamic Acid',cat:'美白',color:'#E6C9A8',desc:'抑制酪氨酸酶，从源头减少黑色素，温和淡斑',skin:'所有肤质',caution:'护肤品浓度2-5%'},
-  aha:{name:'果酸',en:'AHA',cat:'酸类',color:'#FFD700',desc:'水溶性去角质，提亮肤色改善粗糙',skin:'非敏感肌',caution:'使用后必须防晒！从5%开始'},
-  bha:{name:'水杨酸',en:'BHA',cat:'酸类',color:'#FFA500',desc:'脂溶性酸，深入毛孔溶油控油抗炎',skin:'油痘肌',caution:'2%为OTC上限'},
-  ret:{name:'A醇',en:'Retinol',cat:'抗老',color:'#FF6B6B',desc:'抗老金标准，促细胞代谢刺激胶原，需建立耐受',skin:'非敏感肌',caution:'孕妇禁用！从0.025%开始'},
-  pep:{name:'胜肽',en:'Peptides',cat:'抗老',color:'#98D8C8',desc:'信号肽促胶原、神经肽放松表情纹，温和高效',skin:'所有肤质',caution:'种类多按需选'},
-  pxy:{name:'玻色因',en:'Pro-Xylane',cat:'抗老',color:'#C9B1FF',desc:'欧莱雅专利，促糖胺聚糖合成，从真皮层撑起皮肤',skin:'所有肤质',caution:'需4-8周见效'},
-  cer:{name:'神经酰胺',en:'Ceramide',cat:'修复',color:'#A8D8EA',desc:'构成皮肤屏障的关键脂质，修复锁水，敏感肌救星',skin:'所有肤质',caution:'搭配胆固醇脂肪酸效果更佳'},
-  ha:{name:'玻尿酸',en:'Hyaluronic Acid',cat:'保湿',color:'#B5EAD7',desc:'万能保湿，大分子锁水小分子补水，与所有成分兼容',skin:'所有肤质',caution:'湿润环境下用，干脸涂反吸水'},
-  vcd:{name:'VC衍生物',en:'VC Derivatives',cat:'美白',color:'#FFB6C1',desc:'VC温和替代，不需低pH，白天也能用',skin:'所有肤质',caution:'效果比原型VC温和缓慢'},
-  sun:{name:'防晒',en:'Sunscreen',cat:'防护',color:'#FFEAA7',desc:'护肤最后一步也是最重要的一步！防光老化',skin:'所有肤质',caution:'SPF30+ PA+++最低标准'}
+  vc:{name:'原型VC',en:'Vitamin C',cat:'美白',color:'#FFB6C1'},
+  nia:{name:'烟酰胺',en:'Niacinamide',cat:'美白',color:'#DDA0DD'},
+  tra:{name:'传明酸',en:'Tranexamic Acid',cat:'美白',color:'#E6C9A8'},
+  aha:{name:'果酸',en:'AHA',cat:'酸类',color:'#FFD700'},
+  bha:{name:'水杨酸',en:'BHA',cat:'酸类',color:'#FFA500'},
+  ret:{name:'A醇',en:'Retinol',cat:'抗老',color:'#FF6B6B'},
+  pep:{name:'胜肽',en:'Peptides',cat:'抗老',color:'#98D8C8'},
+  pxy:{name:'玻色因',en:'Pro-Xylane',cat:'抗老',color:'#C9B1FF'},
+  cer:{name:'神经酰胺',en:'Ceramide',cat:'修复',color:'#A8D8EA'},
+  ha:{name:'玻尿酸',en:'Hyaluronic Acid',cat:'保湿',color:'#B5EAD7'},
+  vcd:{name:'VC衍生物',en:'VC Derivatives',cat:'美白',color:'#FFB6C1'},
+  sun:{name:'防晒',en:'Sunscreen',cat:'防护',color:'#FFEAA7'}
 };
 
 // ==================== SCENES ====================
-// Each scene: { sentences: [...], actions: [...], bg: color|null }
-// sentence = text to speak
-// action = { after: sentenceIndex, do: function }
-// After each sentence finishes speaking, execute all actions with that index
-
-// sentences支持 pause 字段（ms），TTS结束后额外停留
+// Each scene has:
+//   narration: full text spoken by TTS (single utterance for boundary events)
+//   triggers: { keyword: callback } — fired when onboundary detects the keyword
+//   fallbacks: sentence-level actions for browsers without onboundary support
+//   ref: shown at scene start
 const scenes = [
-  // Scene 0: 认识成分
   {
-    bg: null,
-    sentences: [
-      { text: '先认识一下，常见的12位主角。', pause: 800 },
-      { text: '美白组：VC、烟酰胺、传明酸。' },
-      { text: '酸类加抗老：果酸、水杨酸、A醇。' },
-      { text: '修复保湿防护：胜肽、玻色因、神经酰胺、玻尿酸、VC衍生物、还有防晒！' },
-      { text: '防晒是最后一步，也是最重要的一步！', pause: 1500, ref: '来源：皮肤科医师协会AAD 2024防晒指南' }
-    ],
-    height: 700
+    bg: null, ref: null, height: 700,
+    narration: '先认识一下，常见的12位主角。美白组的VC、烟酰胺、传明酸。酸类加抗老：果酸、水杨酸、A醇。修复保湿防护：胜肽、玻色因、神经酰胺、玻尿酸、VC衍生物、还有防晒。防晒是最后一步，也是最重要的一步！',
+    triggers: {
+      '主角': () => addPopup('12位主角登场', 'center', '#6B4E71', 18, 2000),
+      'VC': () => { if(!sceneBoxes.find(b=>b.id==='vc')) addBox('vc',groupPos(0,0)); },
+      '烟酰胺': () => { if(!sceneBoxes.find(b=>b.id==='nia')){ addBox('nia',groupPos(0,1)); addBox('tra',groupPos(0,2)); addPopup('美白组','above','#FFB6C1',14,1800,W/2,groupPos(0,0).y-45); }},
+      '果酸': () => { if(!sceneBoxes.find(b=>b.id==='aha')) addBox('aha',groupPos(1,0)); },
+      '水杨酸': () => { if(!sceneBoxes.find(b=>b.id==='bha')){ addBox('bha',groupPos(1,1)); addBox('ret',groupPos(1,2)); addPopup('酸类+抗老','above','#FF6B6B',14,1800,W/2,groupPos(1,0).y-45); }},
+      '胜肽': () => { if(!sceneBoxes.find(b=>b.id==='pep')){ addBox('pep',restPos(0)); addBox('pxy',restPos(1)); addBox('cer',restPos(2)); addPopup('修复·保湿·防护','above','#98D8C8',14,1800,W/2,restPos(0).y-45); }},
+      '玻尿酸': () => { if(!sceneBoxes.find(b=>b.id==='ha')) addBox('ha',restPos(3)); },
+      'VC衍生物': () => { if(!sceneBoxes.find(b=>b.id==='vcd')) addBox('vcd',restPos(4)); },
+      '防晒': () => { if(!sceneBoxes.find(b=>b.id==='sun')){ addBox('sun',restPos(5)); addPopup('☀️ 最重要的一步！','center','#FF9800',16,2500); }},
+    }
   },
-  // Scene 1: 神仙CP
   {
-    bg: null,
-    sentences: [
-      { text: '好消息先说！有些成分在一起，一加一大于二。', pause: 800 },
-      { text: '烟酰胺加A醇，这个组合被吹爆了！', pause: 1000, ref: 'Journal of Cosmetic Dermatology, 2023: 烟酰胺降低A醇刺激性' },
-      { text: '玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！', pause: 1200, ref: '欧莱雅内部研究+Int J Cosmet Sci 2022' },
-      { text: '传明酸加烟酰胺，双通路美白加倍。', pause: 800, ref: 'J Drugs Dermatol 2020: 双靶点抑黑素' },
-      { text: '神经酰胺搭配A醇，帮你把A醇的刺激拉下来一个档次。', pause: 1000, ref: 'Skin Therapy Letter 2023: 屏障修复降低刺激性' }
-    ],
-    height: 800
+    bg: null, ref: 'J Cosmet Dermatol 2023 / Int J Cosmet Sci 2022', height: 800,
+    narration: '好消息先说！有些成分在一起，一加一大于二。烟酰胺加A醇，这个组合被吹爆了！玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！传明酸加烟酰胺，双通路美白加倍。神经酰胺搭配A醇，帮你把A醇的刺激拉下来一个档次。',
+    triggers: {
+      '好消息': () => addPopup('好消息先说！✨','center','#4CAF50',18,2000),
+      '大于二': () => addPopup('1 + 1 > 2','center','#4CAF50',22,1800),
+      '烟酰胺加A醇': () => { addBox('nia',pairPos(0,'L')); addBox('ret',pairPos(0,'R')); },
+      '吹爆了': () => { addLine(pairPos(0,'L'),pairPos(0,'R'),'#4CAF50',false,'✅ 神仙CP'); addPopup('被吹爆了！','pop','#4CAF50',15,1500); },
+      '玻色因': () => addBox('pxy',pairPos(1,'L')),
+      '胜肽': () => addBox('pep',pairPos(1,'R')),
+      '黄金搭档': () => { addLine(pairPos(1,'L'),pairPos(1,'R'),'#4CAF50',false,'✅ 抗老黄金组合'); addPopup('底层撑起+结构加固','pop','#4CAF50',13,1800); },
+      '传明酸': () => addBox('tra',pairPos(2,'L')),
+      '加倍': () => { addLine(sceneBoxes.find(b=>b.id==='nia').pos,pairPos(2,'L'),'#4CAF50',false,'✅ 美白加倍'); },
+      '神经酰胺': () => addBox('cer',pairPos(3,'L')),
+      '刺激拉下来': () => { addLine(pairPos(3,'L'),sceneBoxes.find(b=>b.id==='ret').pos,'#4CAF50',false,'✅ 降刺激'); },
+    }
   },
-  // Scene 2: 百搭选手
   {
-    bg: null,
-    sentences: [
-      { text: '玻尿酸，万能百搭选手！', pause: 1000 },
-      { text: '它跟谁都不打架，放心叠。' },
-      { text: '搭配烟酰胺，没问题。搭配A醇，降低刺激。' },
-      { text: '搭配果酸，酸后保湿必备。搭配胜肽，也完全OK。' },
-      { text: '记住，玻尿酸是你的安全牌！', pause: 1500 }
-    ],
-    height: 700
+    bg: null, ref: null, height: 700,
+    narration: '玻尿酸，万能百搭选手！它跟谁都不打架，放心叠。搭配烟酰胺，没问题。搭配A醇，降低刺激。搭配果酸，酸后保湿必备。搭配胜肽，也完全OK。记住，玻尿酸是你的安全牌！',
+    triggers: {
+      '玻尿酸': () => { addBox('ha',hubCenter(),true); addPopup('万能百搭选手！','center','#4CAF50',18,2000); },
+      '不打架': () => addPopup('跟谁都不打架 ✅','center','#4CAF50',16,2000),
+      '烟酰胺': () => { addBox('nia',hubItem(0)); addLine(hubCenter(),hubItem(0),'#4CAF50'); },
+      'A醇': () => { addBox('ret',hubItem(1)); addLine(hubCenter(),hubItem(1),'#4CAF50'); },
+      '果酸': () => { addBox('aha',hubItem(2)); addLine(hubCenter(),hubItem(2),'#4CAF50'); },
+      '保湿必备': () => addPopup('酸后保湿必备','pop','#4CAF50',13,1500),
+      '胜肽': () => { addBox('pep',hubItem(3)); addLine(hubCenter(),hubItem(3),'#4CAF50'); },
+      '安全牌': () => addPopup('放心叠！✅','center','#4CAF50',20,2000),
+    }
   },
-  // Scene 3: 黄牌警告
   {
-    bg: 'rgba(255,200,50,0.06)',
-    sentences: [
-      { text: '黄牌警告！', pause: 1000 },
-      { text: 'VC和烟酰胺，正常浓度下问题不大，但敏感肌建议早晚分开用。', pause: 1500, ref: 'Br J Dermatol 2021: 高浓度烟酰胺+低pH可能转化为烟酸' },
-      { text: '烟酰胺不要和果酸、水杨酸直接混涂，间隔30分钟再用。', pause: 1200, ref: 'Dermatol Ther 2022: 酸性环境加速烟酰胺分解' },
-      { text: 'A醇和VC也别一起用，经典早C晚A，让它们各上各的班。', pause: 1500, ref: 'JAMA Dermatol 2023: 分时使用最大化两者功效' }
-    ],
-    height: 720
+    bg: 'rgba(255,200,50,0.06)', ref: 'Br J Dermatol 2021 / Dermatol Ther 2022', height: 720,
+    narration: '黄牌警告！VC和烟酰胺，正常浓度下问题不大，但敏感肌建议早晚分开用。烟酰胺不要和果酸、水杨酸直接混涂，间隔30分钟再用。A醇和VC也别一起用，经典早C晚A，让它们各上各的班。',
+    triggers: {
+      '黄牌': () => addPopup('⚠️ 黄牌警告！','center','#FF9800',20,2000),
+      'VC和烟酰胺': () => { addBox('vc',warnPos(0,'L')); addBox('nia',warnPos(0,'R')); addLine(warnPos(0,'L'),warnPos(0,'R'),'#FF9800',true,'⚠️ 建议分开'); },
+      '分开用': () => addPopup('敏感肌早晚分开','pop','#FF9800',13,2000),
+      '果酸': () => { addBox('aha',warnPos(1,'L')); addLine(warnPos(1,'L'),sceneBoxes.find(b=>b.id==='nia').pos,'#FF9800',true,'⚠️ 间隔30min'); },
+      '水杨酸': () => { addBox('bha',warnPos(2,'L')); addLine(warnPos(2,'L'),sceneBoxes.find(b=>b.id==='nia').pos,'#FF9800',true,'⚠️ 间隔30min'); },
+      'A醇': () => { addBox('ret',warnPos(3,'L')); addLine(warnPos(3,'L'),sceneBoxes.find(b=>b.id==='vc').pos,'#FF9800',true,'⚠️ 早C晚A'); },
+      '各上各的班': () => addPopup('各上各的班','center','#FF9800',16,2000),
+    }
   },
-  // Scene 4: 红牌禁区
   {
-    bg: 'rgba(255,80,80,0.08)',
-    sentences: [
-      { text: '红牌来了！', pause: 1500 },
-      { text: '果酸加水杨酸，等于双重去角质，屏障直接裂开。', pause: 1500, ref: 'J Am Acad Dermatol 2022: 双酸叠加显著增加TEWL' },
-      { text: 'A醇加果酸或水杨酸也是一样。', pause: 1000, ref: 'Skin Pharmacol Physiol 2023: 视黄醇+酸类协同刺激' },
-      { text: '两个刺激成分叠加，那不是护肤，是作死！', pause: 2000 }
-    ],
-    height: 650
+    bg: 'rgba(255,80,80,0.08)', ref: 'J Am Acad Dermatol 2022 / Skin Pharmacol Physiol 2023', height: 650,
+    narration: '红牌来了！果酸加水杨酸，等于双重去角质，屏障直接裂开。A醇加果酸或水杨酸也是一样。两个刺激成分叠加，那不是护肤，是作死！',
+    triggers: {
+      '红牌': () => addPopup('❌ 红牌来了！','center','#F44336',22,2000),
+      '果酸加水杨酸': () => { addBox('aha',dangerPos(0,'L')); addBox('bha',dangerPos(0,'R')); addLine(dangerPos(0,'L'),dangerPos(0,'R'),'#F44336',true,'❌ 双重刺激'); },
+      '裂开': () => addPopup('屏障直接裂开','center','#F44336',16,2000),
+      'A醇': () => { addBox('ret',dangerPos(1,'L')); addLine(dangerPos(1,'L'),sceneBoxes.find(b=>b.id==='aha').pos,'#F44336',true,'❌ 双重刺激'); addLine(dangerPos(1,'L'),sceneBoxes.find(b=>b.id==='bha').pos,'#F44336',true,'❌ 双重刺激'); },
+      '作死': () => addPopup('不是护肤，是作死！🙅','center','#F44336',18,2500),
+    }
   },
-  // Scene 5: 实用方案
   {
-    bg: null,
-    sentences: [
-      { text: '实操方案来了！', pause: 800 },
-      { text: '早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。' },
-      { text: '美白攻坚：传明酸加烟酰胺，别忘了防晒。' },
-      { text: '温和抗老：胜肽加玻色因加神经酰胺。' },
-      { text: '刷酸修复：果酸或水杨酸选一个，然后神经酰胺修复。' },
-      { text: '截图收藏！评论区告诉我你踩过什么坑，关注我，程序员用UML讲美妆！', pause: 2000 }
-    ],
-    height: 780
+    bg: null, ref: null, height: 780,
+    narration: '实操方案来了！早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。美白攻坚：传明酸加烟酰胺，别忘了防晒。温和抗老：胜肽加玻色因加神经酰胺。刷酸修复：果酸或水杨酸选一个，然后神经酰胺修复。截图收藏！评论区告诉我你踩过什么坑，关注我，程序员用UML讲美妆！',
+    triggers: {
+      '实操': () => addPopup('💡 实操方案','center','#6B4E71',20,2000),
+      '早C晚A': () => addCard(0),
+      '美白': () => addCard(1),
+      '温和抗老': () => addCard(2),
+      '刷酸': () => addCard(3),
+      '截图': () => { addPopup('截图收藏！⭐','center','#FF9800',20,2000); setTimeout(()=>addPopup('评论区告诉我你踩过什么坑','center','#6B4E71',14,2500),1500); setTimeout(()=>addPopup('关注我 | 程序员用UML讲美妆','center','#B8A9C9',13,3000),3500); },
+    }
   }
 ];
 
 // ==================== STATE ====================
 let canvas, ctx, rc, W, H, dpr;
-let currentScene = -1, sentenceIdx = -1;
+let currentScene = -1;
 let autoMode = true, ttsEnabled = true, started = false;
 let zhVoice = null, animFrameId = null;
-let sceneBoxes = [], sceneLines = [], sceneCards = [];
-let popups = [];
+let sceneBoxes = [], sceneLines = [], sceneCards = [], popups = [];
 let manualAdvanceTimer = null;
+let useBoundary = false; // auto-detect on first speak
 
 // ==================== INIT ====================
 function init() {
@@ -146,72 +155,35 @@ function init() {
   rc = rough.canvas(canvas);
   resize();
   window.addEventListener('resize', () => { resize(); if (currentScene < 0) drawCover(); });
-
-  // Scene dots
   const dots = document.getElementById('sceneDots');
-  scenes.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'scene-dot';
-    d.onclick = () => goToScene(i);
-    dots.appendChild(d);
-  });
-
-  // TTS voices
+  scenes.forEach((_, i) => { const d = document.createElement('div'); d.className = 'scene-dot'; d.onclick = () => goToScene(i); dots.appendChild(d); });
   if (window.speechSynthesis) {
-    const loadV = () => {
-      const v = speechSynthesis.getVoices();
-      zhVoice = v.find(x => x.lang === 'zh-CN' && x.localService) || v.find(x => x.lang.startsWith('zh')) || null;
-    };
+    const loadV = () => { const v = speechSynthesis.getVoices(); zhVoice = v.find(x => x.lang === 'zh-CN' && x.localService) || v.find(x => x.lang.startsWith('zh')) || null; };
     loadV(); speechSynthesis.onvoiceschanged = loadV;
   }
-
   setH(440); drawCover();
-  // Cover click handler
   canvas.addEventListener('click', function coverHandler(e) {
     if (started) { canvas.removeEventListener('click', coverHandler); return; }
     const r = canvas.getBoundingClientRect();
-    const mx = (e.clientX - r.left) * (W / r.width);
-    const my = (e.clientY - r.top) * (H / r.height);
-    if (mx > W/2-80 && mx < W/2+80 && my > 230 && my < 290) {
-      canvas.removeEventListener('click', coverHandler);
-      startPresentation();
-    }
+    const mx = (e.clientX - r.left) * (W / r.width), my = (e.clientY - r.top) * (H / r.height);
+    if (mx > W/2-80 && mx < W/2+80 && my > 230 && my < 290) { canvas.removeEventListener('click', coverHandler); startPresentation(); }
   });
 }
 
-function resize() {
-  dpr = window.devicePixelRatio || 1;
-  W = Math.min(document.getElementById('app').clientWidth - 24, 390);
-}
-
-function setH(h) {
-  H = h;
-  canvas.width = W * dpr; canvas.height = H * dpr;
-  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
+function resize() { dpr = window.devicePixelRatio || 1; W = Math.min(document.getElementById('app').clientWidth - 24, 390); }
+function setH(h) { H = h; canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
 
 // ==================== COVER ====================
 function drawCover() {
-  setH(440); ctx.clearRect(0, 0, W, H);
-  fillBg('#FFF8F0');
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#6B4E71';
-  ctx.font = 'bold 24px "ZCOOL XiaoWei",serif';
+  setH(440); ctx.clearRect(0, 0, W, H); fillBg('#FFF8F0');
+  ctx.textAlign = 'center'; ctx.fillStyle = '#6B4E71'; ctx.font = 'bold 24px "ZCOOL XiaoWei",serif';
   ctx.fillText('成分能不能一起涂？', W/2, 150);
   ctx.fillStyle = '#A09090'; ctx.font = '13px "Noto Sans SC",sans-serif';
   ctx.fillText('一张图告诉你 · 护肤成分兼容性全解析', W/2, 180);
-  // Button
   const bw=160, bh=48, bx=W/2-bw/2, by=240;
   rc.rectangle(bx, by, bw, bh, {fill:'#E8A0BF',fillStyle:'solid',stroke:'#C890B9',strokeWidth:2,roughness:1.5});
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 15px "Noto Sans SC",sans-serif';
-  ctx.fillText('▶  开始讲解', W/2, by+30);
-  ctx.fillStyle = '#C0B0A0'; ctx.font = '11px "Noto Sans SC",sans-serif';
-  ctx.fillText('程序员用UML讲美妆系列 📐', W/2, 360);
-  // Deco
-  ['#FFB6C130','#DDA0DD30','#98D8C830','#B8A9C930'].forEach((c,i) => {
-    rc.circle([50,W-50,50,W-50][i], [80,80,360,360][i], 20+i*8, {stroke:c,fill:c,fillStyle:'solid',roughness:2});
-  });
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 15px "Noto Sans SC",sans-serif'; ctx.fillText('▶  开始讲解', W/2, by+30);
+  ctx.fillStyle = '#C0B0A0'; ctx.font = '11px "Noto Sans SC",sans-serif'; ctx.fillText('程序员用UML讲美妆系列 📐', W/2, 360);
 }
 
 function startPresentation() {
@@ -227,354 +199,208 @@ function goToScene(idx) {
   clearTimeout(manualAdvanceTimer);
   if (animFrameId) cancelAnimationFrame(animFrameId);
   currentScene = idx;
-  sentenceIdx = -1;
   sceneBoxes = []; sceneLines = []; sceneCards = []; popups = [];
   const sc = scenes[idx];
   setH(sc.height);
   updateUI();
-  // Fade in
+  if (sc.ref) addPopup('📖 ' + sc.ref, 'ref', '#999', 10, 3000);
   canvas.style.opacity = '0';
-  setTimeout(() => { canvas.style.opacity = '1'; nextSentence(); }, 300);
+  setTimeout(() => { canvas.style.opacity = '1'; speakScene(); }, 300);
 }
 
-function nextSentence() {
-  sentenceIdx++;
+// ==================== TTS WITH ONBOUNDARY ====================
+function speakScene() {
   const sc = scenes[currentScene];
-  if (sentenceIdx >= sc.sentences.length) {
-    if (autoMode && currentScene < scenes.length - 1) {
-      setTimeout(() => goToScene(currentScene + 1), 1200);
+  if (!window.speechSynthesis) { runFallback(); return; }
+  
+  // Check if onboundary is supported by doing a test utterance
+  const testU = new SpeechSynthesisUtterance('测试');
+  let boundarySupported = false;
+  testU.onboundary = () => { boundarySupported = true; };
+  testU.onerror = () => {};
+  testU.onend = () => {};
+  speechSynthesis.speak(testU);
+  speechSynthesis.cancel(); // cancel immediately
+  
+  // If onboundary didn't fire, use fallback
+  setTimeout(() => {
+    if (!boundarySupported) {
+      runFallback();
+      return;
     }
-    return;
-  }
-  const sent = typeof sc.sentences[sentenceIdx] === 'string' ? { text: sc.sentences[sentenceIdx] } : sc.sentences[sentenceIdx];
-  // Execute actions for this sentence
-  executeActionsForSentence(currentScene, sentenceIdx);
-  render();
-  // Show reference if exists
-  if (sent.ref) addPopup('📖 ' + sent.ref, 'ref', '#999', 10, sent.pause || 2000);
-  // Speak
-  if (ttsEnabled) {
-    speak(sent.text, () => {
-      const extraPause = sent.pause || 600;
-      setTimeout(nextSentence, extraPause);
-    });
-  } else {
-    clearTimeout(manualAdvanceTimer);
-    if (autoMode) {
-      manualAdvanceTimer = setTimeout(nextSentence, (sent.pause || 600) + 2000);
-    }
-  }
+    
+    // Use onboundary mode
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(sc.narration);
+    u.lang = 'zh-CN'; u.rate = 0.95; u.pitch = 1.1;
+    if (zhVoice) u.voice = zhVoice;
+
+    const triggers = sc.triggers || {};
+    const fired = new Set();
+    const text = sc.narration;
+
+    u.onboundary = (e) => {
+      const word = text.substring(e.charIndex, e.charIndex + (e.charLength || 3));
+      for (const key of Object.keys(triggers)) {
+        if (!fired.has(key) && (word.includes(key) || key.includes(word))) {
+          fired.add(key);
+          triggers[key]();
+          startRenderLoop();
+        }
+      }
+    };
+
+    u.onend = () => {
+      for (const key of Object.keys(triggers)) {
+        if (!fired.has(key)) { fired.add(key); triggers[key](); startRenderLoop(); }
+      }
+      if (autoMode && currentScene < scenes.length - 1) {
+        setTimeout(() => goToScene(currentScene + 1), 1500);
+      }
+    };
+    u.onerror = u.onend;
+    speechSynthesis.speak(u);
+  }, 200);
 }
 
-// ==================== SCENE ACTIONS ====================
-// These are executed when sentence N starts
-function executeActionsForSentence(scene, sentIdx) {
-  if (scene === 0) {
-    if (sentIdx === 0) addPopup('12位主角登场', 'center', '#6B4E71', 18, 2000);
-    if (sentIdx === 1) { addBox('vc', groupPos(0,0)); addBox('nia', groupPos(0,1)); addBox('tra', groupPos(0,2)); addPopup('美白组', 'above', '#FFB6C1', 14, 1800, W/2, groupPos(0,0).y - 45); }
-    if (sentIdx === 2) { addBox('aha', groupPos(1,0)); addBox('bha', groupPos(1,1)); addBox('ret', groupPos(1,2)); addPopup('酸类 + 抗老', 'above', '#FF6B6B', 14, 1800, W/2, groupPos(1,0).y - 45); }
-    if (sentIdx === 3) { ['pep','pxy','cer','ha','vcd','sun'].forEach((id,i) => addBox(id, restPos(i))); addPopup('修复·保湿·防护', 'above', '#98D8C8', 14, 1800, W/2, restPos(0).y - 45); }
-    if (sentIdx === 4) addPopup('防晒是最重要的一步！☀️', 'center', '#FF9800', 16, 2500);
+// Fallback: execute all triggers sequentially
+function runFallback() {
+  const sc = scenes[currentScene];
+  const keys = Object.keys(sc.triggers || {});
+  let i = 0;
+  function next() {
+    if (i >= keys.length) {
+      if (autoMode && currentScene < scenes.length - 1) setTimeout(() => goToScene(currentScene + 1), 1500);
+      return;
+    }
+    sc.triggers[keys[i]]();
+    startRenderLoop();
+    i++;
+    manualAdvanceTimer = setTimeout(next, 1200);
   }
-  if (scene === 1) {
-    if (sentIdx === 0) addPopup('好消息先说！✨', 'center', '#4CAF50', 18, 2000);
-    if (sentIdx === 1) { addBox('nia', pairPos(0,'L')); addBox('ret', pairPos(0,'R')); addLine(pairPos(0,'L'), pairPos(0,'R'), '#4CAF50', false, '✅ 神仙CP'); addPopup('被吹爆了！', 'pop', '#4CAF50', 15, 1500); }
-    if (sentIdx === 2) { addBox('pxy', pairPos(1,'L')); addBox('pep', pairPos(1,'R')); addLine(pairPos(1,'L'), pairPos(1,'R'), '#4CAF50', false, '✅ 抗老黄金组合'); }
-    if (sentIdx === 3) { addBox('tra', pairPos(2,'L')); addLine(sceneBoxes.find(b=>b.id==='nia').pos, pairPos(2,'L'), '#4CAF50', false, '✅ 美白加倍'); }
-    if (sentIdx === 4) { addBox('cer', pairPos(3,'L')); addLine(pairPos(3,'L'), sceneBoxes.find(b=>b.id==='ret').pos, '#4CAF50', false, '✅ 降刺激'); }
-  }
-  if (scene === 2) {
-    if (sentIdx === 0) { addBox('ha', hubCenter(), true); addPopup('万能百搭选手！', 'center', '#4CAF50', 18, 2000); }
-    if (sentIdx === 1) addPopup('跟谁都不打架', 'center', '#4CAF50', 16, 2000);
-    if (sentIdx === 2) { addBox('nia', hubItem(0)); addBox('ret', hubItem(1)); addLine(hubCenter(), hubItem(0), '#4CAF50'); addLine(hubCenter(), hubItem(1), '#4CAF50'); }
-    if (sentIdx === 3) { addBox('aha', hubItem(2)); addBox('pep', hubItem(3)); addLine(hubCenter(), hubItem(2), '#4CAF50'); addLine(hubCenter(), hubItem(3), '#4CAF50'); addPopup('酸后保湿必备', 'pop', '#4CAF50', 13, 1500); }
-    if (sentIdx === 4) addPopup('放心叠！✅', 'center', '#4CAF50', 20, 2000);
-  }
-  if (scene === 3) {
-    if (sentIdx === 0) addPopup('⚠️ 黄牌警告！', 'center', '#FF9800', 20, 2000);
-    if (sentIdx === 1) { addBox('vc', warnPos(0,'L')); addBox('nia', warnPos(0,'R')); addLine(warnPos(0,'L'), warnPos(0,'R'), '#FF9800', true, '⚠️ 建议分开'); addPopup('敏感肌早晚分开', 'pop', '#FF9800', 13, 2000); }
-    if (sentIdx === 2) { addBox('aha', warnPos(1,'L')); addLine(warnPos(1,'L'), sceneBoxes.find(b=>b.id==='nia').pos, '#FF9800', true, '⚠️ 间隔30min'); addBox('bha', warnPos(2,'L')); addLine(warnPos(2,'L'), sceneBoxes.find(b=>b.id==='nia').pos, '#FF9800', true, '⚠️ 间隔30min'); }
-    if (sentIdx === 3) { addBox('ret', warnPos(3,'L')); addLine(warnPos(3,'L'), sceneBoxes.find(b=>b.id==='vc').pos, '#FF9800', true, '⚠️ 早C晚A'); addPopup('各上各的班', 'center', '#FF9800', 16, 2000); }
-  }
-  if (scene === 4) {
-    if (sentIdx === 0) addPopup('❌ 红牌来了！', 'center', '#F44336', 22, 2000);
-    if (sentIdx === 1) { addBox('aha', dangerPos(0,'L')); addBox('bha', dangerPos(0,'R')); addLine(dangerPos(0,'L'), dangerPos(0,'R'), '#F44336', true, '❌ 双重刺激'); addPopup('屏障直接裂开', 'center', '#F44336', 16, 2000); }
-    if (sentIdx === 2) { addBox('ret', dangerPos(1,'L')); addLine(dangerPos(1,'L'), sceneBoxes.find(b=>b.id==='aha').pos, '#F44336', true, '❌ 双重刺激'); addLine(dangerPos(1,'L'), sceneBoxes.find(b=>b.id==='bha').pos, '#F44336', true, '❌ 双重刺激'); }
-    if (sentIdx === 3) addPopup('不是护肤，是作死！🙅', 'center', '#F44336', 18, 2500);
-  }
-  if (scene === 5) {
-    if (sentIdx === 0) addPopup('💡 实操方案', 'center', '#6B4E71', 20, 2000);
-    if (sentIdx >= 1 && sentIdx <= 4) addCard(sentIdx - 1);
-    if (sentIdx === 5) { addPopup('截图收藏！⭐', 'center', '#FF9800', 20, 2000); setTimeout(() => addPopup('评论区告诉我你踩过什么坑', 'center', '#6B4E71', 14, 2500), 1500); setTimeout(() => addPopup('关注我 | 程序员用UML讲美妆', 'center', '#B8A9C9', 13, 3000), 3500); }
-  }
+  next();
 }
 
 // ==================== POSITION HELPERS ====================
 const BW = 100, BH = 55, GAP = 10;
-
-function groupPos(gi, ii) {
-  const y0 = 65 + gi * 200;
-  const cols = 3, totalW = cols * BW + (cols-1) * GAP;
-  const sx = (W - totalW) / 2;
-  return { x: sx + ii * (BW + GAP) + BW/2, y: y0 + BH/2 };
-}
-
-function restPos(i) {
-  const cols = 3, rows = 2, y0 = 475;
-  const row = Math.floor(i / cols), col = i % cols;
-  const totalW = cols * BW + (cols-1) * GAP;
-  const sx = (W - totalW) / 2;
-  return { x: sx + col * (BW + GAP) + BW/2, y: y0 + row * (BH + GAP) + BH/2 };
-}
-
-function pairPos(i, side) {
-  const y = 80 + i * 130;
-  return { x: side === 'L' ? W/2 - 75 : W/2 + 75, y };
-}
-
-function hubCenter() { return { x: W/2, y: 80 }; }
-function hubItem(i) { return { x: W/2, y: 180 + i * 100 }; }
-
-function warnPos(i, side) {
-  const y = 80 + i * 130;
-  return { x: side === 'L' ? W/2 - 75 : W/2 + 75, y };
-}
-
-function dangerPos(i, side) {
-  const y = 100 + i * 140;
-  return { x: side === 'L' ? W/2 - 75 : W/2 + 75, y };
-}
+function groupPos(gi, ii) { const y0=65+gi*200, cols=3, tw=cols*BW+(cols-1)*GAP, sx=(W-tw)/2; return {x:sx+ii*(BW+GAP)+BW/2, y:y0+BH/2}; }
+function restPos(i) { const cols=3, y0=475, row=Math.floor(i/cols), col=i%cols, tw=cols*BW+(cols-1)*GAP, sx=(W-tw)/2; return {x:sx+col*(BW+GAP)+BW/2, y:y0+row*(BH+GAP)+BH/2}; }
+function pairPos(i, side) { return {x:side==='L'?W/2-75:W/2+75, y:80+i*130}; }
+function hubCenter() { return {x:W/2, y:80}; }
+function hubItem(i) { return {x:W/2, y:180+i*100}; }
+function warnPos(i, side) { return {x:side==='L'?W/2-75:W/2+75, y:80+i*130}; }
+function dangerPos(i, side) { return {x:side==='L'?W/2-75:W/2+75, y:100+i*140}; }
 
 // ==================== ELEMENT MANAGEMENT ====================
-function addBox(id, pos, big) {
-  if (sceneBoxes.find(b => b.id === id)) return; // already drawn
-  sceneBoxes.push({ id, pos, big: !!big, born: Date.now() });
-}
-
-function addLine(from, to, color, dash, label) {
-  sceneLines.push({ from, to, color: color||'#B8A9C9', dash: !!dash, label: label||'', born: Date.now() });
-}
-
-function addCard(idx) {
-  if (sceneCards.find(c => c.idx === idx)) return;
-  sceneCards.push({ idx, born: Date.now() });
-}
+function addBox(id, pos, big) { if(sceneBoxes.find(b=>b.id===id)) return; sceneBoxes.push({id,pos,big:!!big,born:Date.now()}); }
+function addLine(from, to, color, dash, label) { sceneLines.push({from,to,color:color||'#B8A9C9',dash:!!dash,label:label||'',born:Date.now()}); }
+function addCard(idx) { if(sceneCards.find(c=>c.idx===idx)) return; sceneCards.push({idx,born:Date.now()}); }
 
 function addPopup(text, style, color, fontSize, duration, x, y) {
-  if (style === 'center') { x = W/2; y = 30; }
-  else if (style === 'pop') { if (!x) x = W/2 + (Math.random()-.5)*40; if (!y) y = H * 0.5; }
-  else if (style === 'ref') { x = W/2; y = H - 35; } // references at bottom
-  else if (style === 'above') { /* x,y provided */ }
-  else { x = x || W/2; y = y || H * 0.5; }
-  // Avoid overlapping existing boxes
-  y = findSafeY(x, y, fontSize || 16, text);
-  popups.push({ text, x, y, style, color: color||'#6B4E71', fontSize: fontSize||16, duration: duration||2000, born: Date.now(), opacity: 0, scale: 0.3 });
+  if (style==='center') { x=W/2; y=30; }
+  else if (style==='pop') { if(!x) x=W/2+(Math.random()-.5)*40; if(!y) y=H*0.5; }
+  else if (style==='ref') { x=W/2; y=H-35; }
+  else if (style==='above') { /* x,y provided */ }
+  else { x=x||W/2; y=y||H*0.5; }
+  y = findSafeY(x, y, fontSize||16, text);
+  popups.push({text,x,y,style,color:color||'#6B4E71',fontSize:fontSize||16,duration:duration||2000,born:Date.now(),opacity:0,scale:0.3});
 }
 
-function findSafeY(x, y, fontSize, text) {
-  // Check against drawn boxes, push popup up if overlapping
-  const pw = fontSize * text.length * 0.6 + 28;
-  const ph = fontSize + 20;
-  let safeY = y;
+function findSafeY(x, y, fs, text) {
+  const pw=fs*text.length*0.6+28, ph=fs+20;
   for (const b of sceneBoxes) {
-    const bLeft = b.pos.x - BW/2, bRight = b.pos.x + BW/2;
-    const bTop = b.pos.y - BH/2, bBot = b.pos.y + BH/2;
-    const pLeft = x - pw/2, pRight = x + pw/2;
-    const pTop = safeY - ph/2, pBot = safeY + ph/2;
-    if (pRight > bLeft && pLeft < bRight && pBot > bTop && pTop < bBot) {
-      safeY = bTop - ph/2 - 8; // push above the box
-    }
+    if (x+pw/2>b.pos.x-BW/2 && x-pw/2<b.pos.x+BW/2 && y+ph/2>b.pos.y-BH/2 && y-ph/2<b.pos.y+BH/2) y=b.pos.y-BH/2-ph/2-8;
   }
-  // Also check against other popups
-  for (const p of popups) {
-    const pph = p.fontSize + 20;
-    if (Math.abs(x - p.x) < 80 && Math.abs(safeY - p.y) < pph) {
-      safeY -= pph + 5;
-    }
-  }
-  return Math.max(25, Math.min(safeY, H - 40));
+  for (const p of popups) { if(Math.abs(x-p.x)<80 && Math.abs(y-p.y)<(p.fontSize+20)) y-=(p.fontSize+25); }
+  return Math.max(25, Math.min(y, H-40));
 }
 
 // ==================== RENDER ====================
+function startRenderLoop() { if(!animFrameId) animFrameId=requestAnimationFrame(renderLoop); }
+
+function renderLoop() {
+  render();
+  const hasAnim = sceneBoxes.some(b=>Date.now()-b.born<400) || sceneLines.some(l=>Date.now()-l.born<400) || popups.length>0 || sceneCards.some(c=>Date.now()-c.born<400);
+  if (hasAnim) animFrameId = requestAnimationFrame(renderLoop);
+  else animFrameId = null;
+}
+
 function render() {
   ctx.clearRect(0, 0, W, H);
   const sc = scenes[currentScene];
   fillBg(sc && sc.bg ? '#FFF5EE' : '#FFF8F0');
   if (sc && sc.bg) { ctx.fillStyle = sc.bg; ctx.fillRect(0, 0, W, H); }
-
   // Lines
   sceneLines.forEach(l => {
-    const age = Date.now() - l.born;
-    const t = Math.min(age / 400, 1);
-    const cx = l.from.x + (l.to.x - l.from.x) * t;
-    const cy = l.from.y + (l.to.y - l.from.y) * t;
-    ctx.save();
-    if (l.dash) ctx.setLineDash([6, 4]);
-    rc.line(l.from.x, l.from.y, cx, cy, { stroke: l.color, strokeWidth: 2, roughness: 1.2 });
+    const age=Date.now()-l.born, t=Math.min(age/400,1);
+    const cx=l.from.x+(l.to.x-l.from.x)*t, cy=l.from.y+(l.to.y-l.from.y)*t;
+    ctx.save(); if(l.dash) ctx.setLineDash([6,4]);
+    rc.line(l.from.x,l.from.y,cx,cy,{stroke:l.color,strokeWidth:2,roughness:1.2});
     ctx.restore();
-    // Label
-    if (l.label && t >= 1) {
-      const mx = (l.from.x + l.to.x) / 2, my = (l.from.y + l.to.y) / 2 - 12;
-      ctx.font = 'bold 12px "Noto Sans SC",sans-serif';
-      ctx.textAlign = 'center';
-      const tw = ctx.measureText(l.label).width + 12;
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      roundRect(ctx, mx-tw/2, my-10, tw, 20, 6); ctx.fill();
-      ctx.fillStyle = l.color;
-      ctx.fillText(l.label, mx, my+4);
-    }
+    if(l.label && t>=1){ const mx=(l.from.x+l.to.x)/2, my=(l.from.y+l.to.y)/2-12;
+      ctx.font='bold 12px "Noto Sans SC",sans-serif'; ctx.textAlign='center';
+      const tw=ctx.measureText(l.label).width+12; ctx.fillStyle='rgba(255,255,255,0.9)'; roundRect(ctx,mx-tw/2,my-10,tw,20,6); ctx.fill();
+      ctx.fillStyle=l.color; ctx.fillText(l.label,mx,my+4); }
   });
-
   // Boxes
-  sceneBoxes.forEach(b => {
-    const age = Date.now() - b.born;
-    const t = Math.min(age / 350, 1);
-    const ease = elasticOut(t);
-    drawBox(b, ease);
-  });
-
+  sceneBoxes.forEach(b => { const t=Math.min((Date.now()-b.born)/350,1); drawBox(b,elasticOut(t)); });
   // Cards
-  const recipes = [
-    { name:'🌅 早C晚A', desc:'早: VC衍生物+防晒 | 晚: A醇+神经酰胺面霜', color:'#FFB6C1' },
-    { name:'✨ 美白攻坚', desc:'传明酸+烟酰胺 → 防晒（必须！）', color:'#DDA0DD' },
-    { name:'🌿 温和抗老', desc:'胜肽+玻色因+神经酰胺', color:'#98D8C8' },
-    { name:'💧 刷酸修复', desc:'果酸或水杨酸（选一）→ 神经酰胺修复', color:'#FFD700' }
+  const recipes=[
+    {name:'🌅 早C晚A',desc:'早: VC衍生物+防晒 | 晚: A醇+神经酰胺',color:'#FFB6C1'},
+    {name:'✨ 美白攻坚',desc:'传明酸+烟酰胺 → 防晒（必须！）',color:'#DDA0DD'},
+    {name:'🌿 温和抗老',desc:'胜肽+玻色因+神经酰胺',color:'#98D8C8'},
+    {name:'💧 刷酸修复',desc:'果酸或水杨酸（选一）→ 神经酰胺修复',color:'#FFD700'}
   ];
   sceneCards.forEach(c => {
-    const age = Date.now() - c.born;
-    const t = Math.min(age / 400, 1);
-    const r = recipes[c.idx];
-    if (!r) return;
-    const cw = W - 32, ch = 80, cy = 80 + c.idx * (ch + 12);
-    ctx.save();
-    ctx.globalAlpha = t;
-    const e = elasticOut(Math.min(t * 1.2, 1));
-    ctx.translate(16 + cw/2, cy + ch/2); ctx.scale(e, e); ctx.translate(-(16+cw/2), -(cy+ch/2));
-    rc.rectangle(16, cy, cw, ch, { stroke: r.color, strokeWidth: 1.5, fill: r.color+'15', fillStyle: 'solid', roughness: 1.5 });
-    ctx.fillStyle = '#3D3D3D'; ctx.font = 'bold 15px "Noto Sans SC",sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText(r.name, 30, cy + 28);
-    ctx.fillStyle = '#777'; ctx.font = '12px "Noto Sans SC",sans-serif';
-    ctx.fillText(r.desc, 30, cy + 52);
-    ctx.restore();
+    const t=Math.min((Date.now()-c.born)/400,1), r=recipes[c.idx]; if(!r) return;
+    const cw=W-32, ch=80, cy=80+c.idx*(ch+12);
+    ctx.save(); ctx.globalAlpha=t; const e=elasticOut(Math.min(t*1.2,1));
+    ctx.translate(16+cw/2,cy+ch/2); ctx.scale(e,e); ctx.translate(-(16+cw/2),-(cy+ch/2));
+    rc.rectangle(16,cy,cw,ch,{stroke:r.color,strokeWidth:1.5,fill:r.color+'15',fillStyle:'solid',roughness:1.5});
+    ctx.fillStyle='#3D3D3D'; ctx.font='bold 15px "Noto Sans SC",sans-serif'; ctx.textAlign='left'; ctx.fillText(r.name,30,cy+28);
+    ctx.fillStyle='#777'; ctx.font='12px "Noto Sans SC",sans-serif'; ctx.fillText(r.desc,30,cy+52); ctx.restore();
   });
-
   // Popups
-  const now = Date.now();
-  popups = popups.filter(p => {
-    const age = now - p.born;
-    const prog = age / p.duration;
-    if (prog > 1) return false;
-    if (prog < 0.15) { p.opacity = prog / 0.15; p.scale = 0.3 + 0.7 * (prog / 0.15); }
-    else if (prog < 0.7) { p.opacity = 1; p.scale = 1; }
-    else { p.opacity = 1 - (prog - 0.7) / 0.3; }
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, p.opacity);
-    ctx.translate(p.x, p.y); ctx.scale(p.scale, p.scale);
-    ctx.font = `bold ${p.fontSize}px "Noto Sans SC",sans-serif`;
-    ctx.textAlign = 'center';
-    const lines = p.text.split('\n');
-    const mw = Math.max(...lines.map(l => ctx.measureText(l).width));
-    const pw = mw + 28, lh = p.fontSize + 6, ph = lines.length * lh + 16;
-    rc.rectangle(-pw/2, -ph/2, pw, ph, { stroke: p.color, fill: 'rgba(255,255,255,0.95)', fillStyle: 'solid', roughness: 1.2, strokeWidth: 2 });
-    ctx.fillStyle = p.color;
-    lines.forEach((l, i) => ctx.fillText(l, 0, -ph/2 + 16 + i * lh + p.fontSize/2));
-    ctx.restore();
-    return true;
+  const now=Date.now();
+  popups=popups.filter(p=>{
+    const age=now-p.born, prog=age/p.duration; if(prog>1) return false;
+    if(prog<0.15){p.opacity=prog/0.15;p.scale=0.3+0.7*(prog/0.15);}
+    else if(prog<0.7){p.opacity=1;p.scale=1;}
+    else{p.opacity=1-(prog-0.7)/0.3;}
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.opacity); ctx.translate(p.x,p.y); ctx.scale(p.scale,p.scale);
+    ctx.font=`bold ${p.fontSize}px "Noto Sans SC",sans-serif`; ctx.textAlign='center';
+    const lines=p.text.split('\n'), mw=Math.max(...lines.map(l=>ctx.measureText(l).width));
+    const pw=mw+28, lh=p.fontSize+6, ph=lines.length*lh+16;
+    rc.rectangle(-pw/2,-ph/2,pw,ph,{stroke:p.color,fill:'rgba(255,255,255,0.95)',fillStyle:'solid',roughness:1.2,strokeWidth:2});
+    ctx.fillStyle=p.color; lines.forEach((l,i)=>ctx.fillText(l,0,-ph/2+16+i*lh+p.fontSize/2));
+    ctx.restore(); return true;
   });
-
-  // Keep animating if popups or animations in progress
-  const hasAnim = sceneBoxes.some(b => Date.now() - b.born < 400) || sceneLines.some(l => Date.now() - l.born < 400) || popups.length > 0 || sceneCards.some(c => Date.now() - c.born < 400);
-  if (hasAnim) animFrameId = requestAnimationFrame(render);
 }
 
-// ==================== DRAW HELPERS ====================
 function drawBox(b, scale) {
-  const ing = ingredients[b.id]; if (!ing) return;
-  const s = b.big ? 1.2 : 1;
-  const bw = BW * s, bh = BH * s;
-  ctx.save();
-  ctx.translate(b.pos.x, b.pos.y); ctx.scale(scale, scale);
-  if (b.big) { ctx.shadowColor = ing.color; ctx.shadowBlur = 15; }
-  rc.rectangle(-bw/2, -bh/2, bw, bh, { stroke: ing.color, strokeWidth: b.big?2.5:2, fill: ing.color+'25', fillStyle: 'solid', roughness: 1.5, bowing: 2 });
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#3D3D3D'; ctx.font = `bold ${b.big?15:13}px "Noto Sans SC",sans-serif`; ctx.textAlign = 'center';
-  ctx.fillText(ing.name, 0, -6);
-  ctx.fillStyle = '#999'; ctx.font = `${b.big?10:9}px "Noto Sans SC",sans-serif`;
-  ctx.fillText(ing.en, 0, 8);
-  const tw = ctx.measureText(ing.cat).width + 10;
-  ctx.fillStyle = ing.color + '50'; roundRect(ctx, -tw/2, 12, tw, 15, 7); ctx.fill();
-  ctx.fillStyle = '#666'; ctx.font = '9px "Noto Sans SC",sans-serif'; ctx.fillText(ing.cat, 0, 23);
-  ctx.restore();
+  const ing=ingredients[b.id]; if(!ing) return;
+  const s=b.big?1.2:1, bw=BW*s, bh=BH*s;
+  ctx.save(); ctx.translate(b.pos.x,b.pos.y); ctx.scale(scale,scale);
+  if(b.big){ctx.shadowColor=ing.color;ctx.shadowBlur=15;}
+  rc.rectangle(-bw/2,-bh/2,bw,bh,{stroke:ing.color,strokeWidth:b.big?2.5:2,fill:ing.color+'25',fillStyle:'solid',roughness:1.5,bowing:2});
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#3D3D3D'; ctx.font=`bold ${b.big?15:13}px "Noto Sans SC",sans-serif`; ctx.textAlign='center'; ctx.fillText(ing.name,0,-6);
+  ctx.fillStyle='#999'; ctx.font=`${b.big?10:9}px "Noto Sans SC",sans-serif`; ctx.fillText(ing.en,0,8);
+  const tw=ctx.measureText(ing.cat).width+10; ctx.fillStyle=ing.color+'50'; roundRect(ctx,-tw/2,12,tw,15,7); ctx.fill();
+  ctx.fillStyle='#666'; ctx.font='9px "Noto Sans SC",sans-serif'; ctx.fillText(ing.cat,0,23); ctx.restore();
 }
 
-function fillBg(color) {
-  ctx.fillStyle = color; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(200,180,160,0.06)';
-  for (let x = 0; x < W; x += 20) for (let y = 0; y < H; y += 20) { ctx.beginPath(); ctx.arc(x, y, 0.8, 0, Math.PI*2); ctx.fill(); }
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
-}
-
-function elasticOut(t) { if (t===0||t===1) return t; return Math.pow(2,-10*t)*Math.sin((t-0.075)*2*Math.PI/0.3)+1; }
+function fillBg(c) { ctx.fillStyle=c; ctx.fillRect(0,0,W,H); ctx.fillStyle='rgba(200,180,160,0.06)'; for(let x=0;x<W;x+=20) for(let y=0;y<H;y+=20){ctx.beginPath();ctx.arc(x,y,0.8,0,Math.PI*2);ctx.fill();} }
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function elasticOut(t){if(t===0||t===1)return t;return Math.pow(2,-10*t)*Math.sin((t-0.075)*2*Math.PI/0.3)+1;}
 
 // ==================== UI ====================
-function updateUI() {
-  document.querySelectorAll('.scene-dot').forEach((d,i) => d.classList.toggle('active', i === currentScene));
-  document.getElementById('progressFill').style.width = ((currentScene+1)/scenes.length*100)+'%';
-}
-
-function setMode(m) {
-  autoMode = m === 'auto';
-  document.getElementById('btnAuto').classList.toggle('active', autoMode);
-  document.getElementById('btnManual').classList.toggle('active', !autoMode);
-  if (!autoMode) clearTimeout(manualAdvanceTimer);
-}
-
-function toggleTTS() {
-  ttsEnabled = !ttsEnabled;
-  document.getElementById('btnTTS').textContent = ttsEnabled ? '🔊' : '🔇';
-  if (!ttsEnabled) speechSynthesis.cancel();
-}
-
-function restart() {
-  speechSynthesis && speechSynthesis.cancel();
-  clearTimeout(manualAdvanceTimer);
-  if (animFrameId) cancelAnimationFrame(animFrameId);
-  currentScene = -1; started = false;
-  document.getElementById('progressFill').style.width = '0%';
-  document.querySelectorAll('.scene-dot').forEach(d => d.classList.remove('active'));
-  setH(440); drawCover();
-  // Re-add cover click handler
-  canvas.addEventListener('click', function coverHandler(e) {
-    if (started) { canvas.removeEventListener('click', coverHandler); return; }
-    const r = canvas.getBoundingClientRect();
-    const mx = (e.clientX - r.left) * (W / r.width);
-    const my = (e.clientY - r.top) * (H / r.height);
-    if (mx > W/2-80 && mx < W/2+80 && my > 230 && my < 290) {
-      canvas.removeEventListener('click', coverHandler);
-      startPresentation();
-    }
-  });
-}
-
-// ==================== TTS ====================
-function speak(text, onDone) {
-  if (!ttsEnabled || !window.speechSynthesis) { onDone && onDone(); return; }
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'zh-CN'; u.rate = 0.95; u.pitch = 1.1;
-  if (zhVoice) u.voice = zhVoice;
-  u.onend = onDone;
-  u.onerror = onDone;
-  speechSynthesis.speak(u);
-}
-
-// ==================== START ====================
+function updateUI(){document.querySelectorAll('.scene-dot').forEach((d,i)=>d.classList.toggle('active',i===currentScene));document.getElementById('progressFill').style.width=((currentScene+1)/scenes.length*100)+'%';}
+function setMode(m){autoMode=m==='auto';document.getElementById('btnAuto').classList.toggle('active',autoMode);document.getElementById('btnManual').classList.toggle('active',!autoMode);if(!autoMode)clearTimeout(manualAdvanceTimer);}
+function toggleTTS(){ttsEnabled=!ttsEnabled;document.getElementById('btnTTS').textContent=ttsEnabled?'🔊':'🔇';if(!ttsEnabled)speechSynthesis.cancel();}
+function restart(){speechSynthesis&&speechSynthesis.cancel();clearTimeout(manualAdvanceTimer);if(animFrameId)cancelAnimationFrame(animFrameId);currentScene=-1;started=false;document.getElementById('progressFill').style.width='0%';document.querySelectorAll('.scene-dot').forEach(d=>d.classList.remove('active'));setH(440);drawCover();canvas.addEventListener('click',function ch(e){if(started){canvas.removeEventListener('click',ch);return;}const r=canvas.getBoundingClientRect(),mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);if(mx>W/2-80&&mx<W/2+80&&my>230&&my<290){canvas.removeEventListener('click',ch);startPresentation();}});}
 window.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
+</html>
 </html>
