@@ -1,0 +1,110 @@
+# kais-GEO 配置
+
+# 评分权重（基于实证校准，Pearson r=0.416, p<0.05）
+# 实验日期: 2026-04-06, 样本: 30个URL
+scoring_weights:
+  authority: 0.300        # 权威性（r=0.454, 最强预测因子）
+  citability: 0.220       # 可引用性（r=0.368）
+  structure: 0.144        # 结构化程度（r=0.294）
+  freshness: 0.120        # 内容新鲜度（r=0.275）
+  ai_friendly: 0.120      # AI引擎友好度（r=0.332）
+  multi_platform: 0.096   # 多平台覆盖（r=0.188）
+
+# AI引擎列表
+engines:
+  # 海外引擎
+  chatgpt:
+    name: "ChatGPT"
+    region: overseas
+    key_sources: [Wikipedia, 新闻网站, 教育资源]
+    citation_pattern: "偏好公认知识和权威定义"
+  perplexity:
+    name: "Perplexity"
+    region: overseas
+    key_sources: [Reddit, 新鲜内容90天内, 技术社区]
+    citation_pattern: "偏好真实用户讨论和最新信息"
+  google-ai:
+    name: "Google AI Overviews"
+    region: overseas
+    key_sources: [高排名内容, E-E-A-T信号, 结构化数据]
+    citation_pattern: "与搜索排名高度相关"
+  claude:
+    name: "Claude"
+    region: overseas
+    key_sources: [学术来源, 长篇深度内容]
+    citation_pattern: "审慎，偏好充分证据支撑"
+  gemini:
+    name: "Gemini"
+    region: overseas
+    key_sources: [Google生态, YouTube, Google Scholar]
+    citation_pattern: "与Google搜索结果较高重叠"
+
+  # 国内引擎
+  deepseek:
+    name: "DeepSeek（深度求索）"
+    region: china
+    key_sources: [知乎, 微信公众号, 技术博客, GitHub, 学术论文]
+    citation_pattern: "技术问题偏好GitHub，通用问题偏好知乎和公众号"
+  kimi:
+    name: "Kimi（月之暗面）"
+    region: china
+    key_sources: [小红书, 知乎, 学术论文, 微信公众号, 豆瓣]
+    citation_pattern: "生活类偏好小红书，专业类偏好知乎和论文"
+  doubao:
+    name: "豆包（字节跳动）"
+    region: china
+    key_sources: [抖音生态, 今日头条, 小红书, 百度百科]
+    citation_pattern: "与字节跳动内容生态深度绑定"
+  wenxin:
+    name: "文心一言（百度）"
+    region: china
+    key_sources: [百度百科, 百度知道, 百度文库, 百家号]
+    citation_pattern: "与百度搜索生态强绑定"
+  tongyi:
+    name: "通义千问（阿里）"
+    region: china
+    key_sources: [淘宝/天猫, 1688, 阿里云文档, 微信公众号]
+    citation_pattern: "电商类偏好阿里系，技术类偏好官方文档"
+  metaso:
+    name: "秘塔AI搜索"
+    region: china
+    key_sources: [学术论文, 微信公众号, 知乎, 行业报告]
+    citation_pattern: "最学术的国内AI搜索，偏好有出处的信息"
+  zhipu:
+    name: "智谱清言"
+    region: china
+    key_sources: [微信公众号, 知乎, 技术博客, 开源社区]
+    citation_pattern: "偏好中文互联网主流内容"
+
+# 引擎分组
+engine_groups:
+  all-overseas: [chatgpt, perplexity, google-ai, claude, gemini]
+  all-china: [deepseek, kimi, doubao, wenxin, tongyi, metaso, zhipu]
+  all: [chatgpt, perplexity, google-ai, claude, gemini, deepseek, kimi, doubao, wenxin, tongyi, metaso, zhipu]
+
+# 默认参数
+defaults:
+  input_type: url
+  depth: standard
+  engines: all
+
+# 评分等级阈值
+grade_thresholds:
+  excellent: 90    # 90-100: GEO 优秀
+  good: 75         # 75-89: GEO 良好
+  average: 60      # 60-74: GEO 一般
+  poor: 40         # 40-59: GEO 较差
+  critical: 0      # 0-39: GEO 极差
+
+# 国内平台引用权重参考
+china_platform_weights:
+  xiaohongshu: 0.20   # 小红书（Kimi/秘塔高频引用）
+  zhihu: 0.20          # 知乎（DeepSeek/豆包偏好）
+  wechat: 0.20         # 微信公众号（几乎所有国内引擎）
+  baidu_baike: 0.10    # 百度百科
+  csdn: 0.05           # CSDN（技术类）
+  juejin: 0.05         # 掘金（技术类）
+  bilibili: 0.05       # B站
+  github: 0.05         # GitHub（DeepSeek偏好）
+  douban: 0.05         # 豆瓣（Kimi偏好）
+  others: 0.05         # 其他
