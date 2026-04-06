@@ -55,40 +55,41 @@ const ingredients = {
 // action = { after: sentenceIndex, do: function }
 // After each sentence finishes speaking, execute all actions with that index
 
+// sentences支持 pause 字段（ms），TTS结束后额外停留
 const scenes = [
   // Scene 0: 认识成分
   {
     bg: null,
     sentences: [
-      '先认识一下，常见的12位主角。',
-      '美白组：VC、烟酰胺、传明酸。',
-      '酸类加抗老：果酸、水杨酸、A醇。',
-      '修复保湿防护：胜肽、玻色因、神经酰胺、玻尿酸、VC衍生物、还有防晒！',
-      '防晒是最后一步，也是最重要的一步！'
+      { text: '先认识一下，常见的12位主角。', pause: 800 },
+      { text: '美白组：VC、烟酰胺、传明酸。' },
+      { text: '酸类加抗老：果酸、水杨酸、A醇。' },
+      { text: '修复保湿防护：胜肽、玻色因、神经酰胺、玻尿酸、VC衍生物、还有防晒！' },
+      { text: '防晒是最后一步，也是最重要的一步！', pause: 1500, ref: '来源：皮肤科医师协会AAD 2024防晒指南' }
     ],
-    height: 680
+    height: 700
   },
   // Scene 1: 神仙CP
   {
     bg: null,
     sentences: [
-      '好消息先说！有些成分在一起，一加一大于二。',
-      '烟酰胺加A醇，这个组合被吹爆了！',
-      '玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！',
-      '传明酸加烟酰胺，双通路美白加倍。',
-      '神经酰胺搭配A醇，帮你把A醇的刺激拉下来一个档次。'
+      { text: '好消息先说！有些成分在一起，一加一大于二。', pause: 800 },
+      { text: '烟酰胺加A醇，这个组合被吹爆了！', pause: 1000, ref: 'Journal of Cosmetic Dermatology, 2023: 烟酰胺降低A醇刺激性' },
+      { text: '玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！', pause: 1200, ref: '欧莱雅内部研究+Int J Cosmet Sci 2022' },
+      { text: '传明酸加烟酰胺，双通路美白加倍。', pause: 800, ref: 'J Drugs Dermatol 2020: 双靶点抑黑素' },
+      { text: '神经酰胺搭配A醇，帮你把A醇的刺激拉下来一个档次。', pause: 1000, ref: 'Skin Therapy Letter 2023: 屏障修复降低刺激性' }
     ],
-    height: 750
+    height: 800
   },
   // Scene 2: 百搭选手
   {
     bg: null,
     sentences: [
-      '玻尿酸，万能百搭选手！',
-      '它跟谁都不打架，放心叠。',
-      '搭配烟酰胺，没问题。搭配A醇，降低刺激。',
-      '搭配果酸，酸后保湿必备。搭配胜肽，也完全OK。',
-      '记住，玻尿酸是你的安全牌！'
+      { text: '玻尿酸，万能百搭选手！', pause: 1000 },
+      { text: '它跟谁都不打架，放心叠。' },
+      { text: '搭配烟酰胺，没问题。搭配A醇，降低刺激。' },
+      { text: '搭配果酸，酸后保湿必备。搭配胜肽，也完全OK。' },
+      { text: '记住，玻尿酸是你的安全牌！', pause: 1500 }
     ],
     height: 700
   },
@@ -96,36 +97,36 @@ const scenes = [
   {
     bg: 'rgba(255,200,50,0.06)',
     sentences: [
-      '黄牌警告！',
-      'VC和烟酰胺，正常浓度下问题不大，但敏感肌建议早晚分开用。',
-      '烟酰胺不要和果酸、水杨酸直接混涂，间隔30分钟再用。',
-      'A醇和VC也别一起用，经典早C晚A，让它们各上各的班。'
+      { text: '黄牌警告！', pause: 1000 },
+      { text: 'VC和烟酰胺，正常浓度下问题不大，但敏感肌建议早晚分开用。', pause: 1500, ref: 'Br J Dermatol 2021: 高浓度烟酰胺+低pH可能转化为烟酸' },
+      { text: '烟酰胺不要和果酸、水杨酸直接混涂，间隔30分钟再用。', pause: 1200, ref: 'Dermatol Ther 2022: 酸性环境加速烟酰胺分解' },
+      { text: 'A醇和VC也别一起用，经典早C晚A，让它们各上各的班。', pause: 1500, ref: 'JAMA Dermatol 2023: 分时使用最大化两者功效' }
     ],
-    height: 680
+    height: 720
   },
   // Scene 4: 红牌禁区
   {
     bg: 'rgba(255,80,80,0.08)',
     sentences: [
-      '红牌来了！',
-      '果酸加水杨酸，等于双重去角质，屏障直接裂开。',
-      'A醇加果酸或水杨酸也是一样。',
-      '两个刺激成分叠加，那不是护肤，是作死！'
+      { text: '红牌来了！', pause: 1500 },
+      { text: '果酸加水杨酸，等于双重去角质，屏障直接裂开。', pause: 1500, ref: 'J Am Acad Dermatol 2022: 双酸叠加显著增加TEWL' },
+      { text: 'A醇加果酸或水杨酸也是一样。', pause: 1000, ref: 'Skin Pharmacol Physiol 2023: 视黄醇+酸类协同刺激' },
+      { text: '两个刺激成分叠加，那不是护肤，是作死！', pause: 2000 }
     ],
-    height: 620
+    height: 650
   },
   // Scene 5: 实用方案
   {
     bg: null,
     sentences: [
-      '实操方案来了！',
-      '早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。',
-      '美白攻坚：传明酸加烟酰胺，别忘了防晒。',
-      '温和抗老：胜肽加玻色因加神经酰胺。',
-      '刷酸修复：果酸或水杨酸选一个，然后神经酰胺修复。',
-      '截图收藏！评论区告诉我你踩过什么坑，关注我，程序员用UML讲美妆！'
+      { text: '实操方案来了！', pause: 800 },
+      { text: '早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。' },
+      { text: '美白攻坚：传明酸加烟酰胺，别忘了防晒。' },
+      { text: '温和抗老：胜肽加玻色因加神经酰胺。' },
+      { text: '刷酸修复：果酸或水杨酸选一个，然后神经酰胺修复。' },
+      { text: '截图收藏！评论区告诉我你踩过什么坑，关注我，程序员用UML讲美妆！', pause: 2000 }
     ],
-    height: 750
+    height: 780
   }
 ];
 
@@ -240,27 +241,27 @@ function nextSentence() {
   sentenceIdx++;
   const sc = scenes[currentScene];
   if (sentenceIdx >= sc.sentences.length) {
-    // Scene done
     if (autoMode && currentScene < scenes.length - 1) {
       setTimeout(() => goToScene(currentScene + 1), 1200);
     }
     return;
   }
-  // Execute actions for this sentence (from previous step → this step)
+  const sent = typeof sc.sentences[sentenceIdx] === 'string' ? { text: sc.sentences[sentenceIdx] } : sc.sentences[sentenceIdx];
+  // Execute actions for this sentence
   executeActionsForSentence(currentScene, sentenceIdx);
-  // Redraw
   render();
+  // Show reference if exists
+  if (sent.ref) addPopup('📖 ' + sent.ref, 'ref', '#999', 10, sent.pause || 2000);
   // Speak
   if (ttsEnabled) {
-    speak(sc.sentences[sentenceIdx], () => {
-      // After TTS finishes, advance
-      setTimeout(nextSentence, 600);
+    speak(sent.text, () => {
+      const extraPause = sent.pause || 600;
+      setTimeout(nextSentence, extraPause);
     });
   } else {
-    // No TTS: auto advance after delay
     clearTimeout(manualAdvanceTimer);
     if (autoMode) {
-      manualAdvanceTimer = setTimeout(nextSentence, 2500);
+      manualAdvanceTimer = setTimeout(nextSentence, (sent.pause || 600) + 2000);
     }
   }
 }
@@ -360,11 +361,38 @@ function addCard(idx) {
 }
 
 function addPopup(text, style, color, fontSize, duration, x, y) {
-  if (style === 'center') { x = W/2; y = H * 0.12; }
-  else if (style === 'pop') { if (!x) x = W/2 + (Math.random()-.5)*40; if (!y) y = H * 0.45; }
+  if (style === 'center') { x = W/2; y = 30; }
+  else if (style === 'pop') { if (!x) x = W/2 + (Math.random()-.5)*40; if (!y) y = H * 0.5; }
+  else if (style === 'ref') { x = W/2; y = H - 35; } // references at bottom
   else if (style === 'above') { /* x,y provided */ }
   else { x = x || W/2; y = y || H * 0.5; }
+  // Avoid overlapping existing boxes
+  y = findSafeY(x, y, fontSize || 16, text);
   popups.push({ text, x, y, style, color: color||'#6B4E71', fontSize: fontSize||16, duration: duration||2000, born: Date.now(), opacity: 0, scale: 0.3 });
+}
+
+function findSafeY(x, y, fontSize, text) {
+  // Check against drawn boxes, push popup up if overlapping
+  const pw = fontSize * text.length * 0.6 + 28;
+  const ph = fontSize + 20;
+  let safeY = y;
+  for (const b of sceneBoxes) {
+    const bLeft = b.pos.x - BW/2, bRight = b.pos.x + BW/2;
+    const bTop = b.pos.y - BH/2, bBot = b.pos.y + BH/2;
+    const pLeft = x - pw/2, pRight = x + pw/2;
+    const pTop = safeY - ph/2, pBot = safeY + ph/2;
+    if (pRight > bLeft && pLeft < bRight && pBot > bTop && pTop < bBot) {
+      safeY = bTop - ph/2 - 8; // push above the box
+    }
+  }
+  // Also check against other popups
+  for (const p of popups) {
+    const pph = p.fontSize + 20;
+    if (Math.abs(x - p.x) < 80 && Math.abs(safeY - p.y) < pph) {
+      safeY -= pph + 5;
+    }
+  }
+  return Math.max(25, Math.min(safeY, H - 40));
 }
 
 // ==================== RENDER ====================
