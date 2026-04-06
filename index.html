@@ -7,935 +7,545 @@
 <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Noto Sans SC', sans-serif;
-  background: #FFF8F0;
-  overflow-x: hidden;
-  color: #3D3D3D;
-  -webkit-tap-highlight-color: transparent;
-}
-#app {
-  width: 100%;
-  max-width: 414px;
-  margin: 0 auto;
-  padding: 12px;
-  position: relative;
-}
-canvas {
-  display: block;
-  margin: 0 auto;
-  cursor: pointer;
-  transition: opacity 0.5s ease;
-  width: 100%;
-}
-.controls {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 100;
-}
-.ctrl-btn {
-  padding: 6px 12px;
-  border: 2px solid #E8D5C4;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.95);
-  cursor: pointer;
-  font-size: 12px;
-  font-family: 'Noto Sans SC', sans-serif;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-.ctrl-btn:hover { background: #FFF0E6; border-color: #D4A574; }
-.ctrl-btn.active { background: #F5D5C0; border-color: #D4A574; }
-.progress-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: #F0E6DC;
-  z-index: 100;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #E8A0BF, #B8A9C9);
-  transition: width 0.5s ease;
-  width: 0%;
-}
-.narration {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.95);
-  padding: 10px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  line-height: 1.6;
-  max-width: 90vw;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  z-index: 100;
-  display: none;
-  border: 1px solid #E8D5C4;
-  transition: opacity 0.4s;
-}
-.scene-dots {
-  position: fixed;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 100;
-}
-.scene-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #E0D0C0;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-.scene-dot.active {
-  background: linear-gradient(135deg, #E8A0BF, #B8A9C9);
-  transform: scale(1.3);
-}
-.scene-dot:hover { background: #D4A574; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC',sans-serif;background:#FFF8F0;overflow-x:hidden;color:#3D3D3D;-webkit-tap-highlight-color:transparent}
+#app{width:100%;max-width:414px;margin:0 auto;padding:12px;position:relative}
+canvas{display:block;margin:0 auto;cursor:pointer;width:100%}
+.controls{position:fixed;top:12px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:100}
+.ctrl-btn{padding:6px 12px;border:2px solid #E8D5C4;border-radius:20px;background:rgba(255,255,255,0.95);cursor:pointer;font-size:12px;font-family:'Noto Sans SC',sans-serif;transition:all .3s;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.ctrl-btn.active{background:#F5D5C0;border-color:#D4A574}
+.progress-bar{position:fixed;bottom:0;left:0;width:100%;height:4px;background:#F0E6DC;z-index:100}
+.progress-fill{height:100%;background:linear-gradient(90deg,#E8A0BF,#B8A9C9);transition:width .5s;width:0%}
+.scene-dots{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:100}
+.scene-dot{width:8px;height:8px;border-radius:50%;background:#E0D0C0;transition:all .3s;cursor:pointer}
+.scene-dot.active{background:linear-gradient(135deg,#E8A0BF,#B8A9C9);transform:scale(1.3)}
 </style>
 </head>
 <body>
-
-<div id="app">
-  <canvas id="mainCanvas"></canvas>
-  <div class="narration" id="narration"></div>
-</div>
-
+<div id="app"><canvas id="mainCanvas"></canvas></div>
 <div class="controls">
   <button class="ctrl-btn active" id="btnAuto" onclick="setMode('auto')">▶ 自动</button>
   <button class="ctrl-btn" id="btnManual" onclick="setMode('manual')">✋ 手动</button>
   <button class="ctrl-btn" id="btnTTS" onclick="toggleTTS()">🔊</button>
   <button class="ctrl-btn" id="btnRestart" onclick="restart()">↺</button>
 </div>
-
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 <div class="scene-dots" id="sceneDots"></div>
 
 <script>
-// ============ DATA ============
-const ingredients = [
-  { id: 'vc', name: '原型VC', en: 'Vitamin C', cat: '美白', color: '#FFB6C1', desc: '强效美白抗氧化，需要低pH环境(pH<3.5)才能有效吸收。怕光怕氧化，建议晚上使用。', skin: '耐受肌', caution: '原型VC浓度15%已足够，过高徒增刺激' },
-  { id: 'nia', name: '烟酰胺', en: 'Niacinamide', cat: '美白', color: '#DDA0DD', desc: '万金油成分，美白抗炎修复保湿样样行。阻断黑色素向表皮转运。', skin: '所有肤质', caution: '建立耐受从2-3%开始，最高可用10%' },
-  { id: 'tra', name: '传明酸', en: 'Tranexamic Acid', cat: '美白', color: '#E6C9A8', desc: '抑制酪氨酸酶活性，从源头减少黑色素生成。温和不刺激，适合淡斑。', skin: '所有肤质', caution: '口服版本需遵医嘱，护肤品中浓度2-5%' },
-  { id: 'aha', name: '果酸', en: 'AHA', cat: '酸类', color: '#FFD700', desc: '水溶性去角质成分（甘醇酸、乳酸等），提亮肤色、改善粗糙。', skin: '非敏感肌', caution: '使用后必须防晒！建议从低浓度5%开始' },
-  { id: 'bha', name: '水杨酸', en: 'BHA', cat: '酸类', color: '#FFA500', desc: '脂溶性酸，能深入毛孔溶解油脂。控油、疏通毛孔、抗炎。', skin: '油痘肌', caution: '浓度2%为OTC上限，使用后注意保湿' },
-  { id: 'ret', name: 'A醇', en: 'Retinol', cat: '抗老', color: '#FF6B6B', desc: '抗老金标准，促进细胞代谢、刺激胶原蛋白生成。需建立耐受。', skin: '非敏感肌', caution: '孕妇禁用！从0.025%开始，晚上使用后防晒' },
-  { id: 'pep', name: '胜肽', en: 'Peptides', cat: '抗老', color: '#98D8C8', desc: '信号肽促胶原生成、神经肽放松表情纹、载体肽输送铜离子修复。温和高效。', skin: '所有肤质', caution: '种类繁多，按需选择；注意产品配方中的其他成分' },
-  { id: 'pxy', name: '玻色因', en: 'Pro-Xylane', cat: '抗老', color: '#C9B1FF', desc: '欧莱雅专利，促进糖胺聚糖合成，从真皮层撑起皮肤。温和无刺激。', skin: '所有肤质', caution: '需长期使用(4-8周)才能看到效果' },
-  { id: 'cer', name: '神经酰胺', en: 'Ceramide', cat: '修复', color: '#A8D8EA', desc: '构成皮肤屏障的关键脂质，修复受损屏障、锁住水分。敏感肌救星。', skin: '所有肤质（尤其敏感肌）', caution: '搭配胆固醇和脂肪酸效果更佳' },
-  { id: 'ha', name: '玻尿酸', en: 'Hyaluronic Acid', cat: '保湿', color: '#B5EAD7', desc: '万能保湿选手，大分子锁水、小分子深层补水。与所有成分兼容。', skin: '所有肤质', caution: '需要在湿润环境下使用，干脸涂反而吸水' },
-  { id: 'vcd', name: 'VC衍生物', en: 'VC Derivatives', cat: '美白', color: '#FFB6C1', desc: 'VC的温和替代品（AA2G、VC-IP等），不需要低pH环境，白天也能用。', skin: '所有肤质', caution: '效果比原型VC温和缓慢，但更稳定方便' },
-  { id: 'sun', name: '防晒', en: 'Sunscreen', cat: '防护', color: '#FFEAA7', desc: '护肤最后一步也是最重要的一步！防止光老化、色素沉着。', skin: '所有肤质', caution: 'SPF30+ PA+++为日常最低标准' }
-];
-
-const relations = [
-  { from: 'nia', to: 'ret', type: 'compatible', label: '✅ 神仙CP', detail: '烟酰胺降低A醇刺激，协同抗老美白' },
-  { from: 'nia', to: 'tra', type: 'compatible', label: '✅ 美白加倍', detail: '双通路抑制黑色素，协同淡斑' },
-  { from: 'pxy', to: 'pep', type: 'compatible', label: '✅ 抗老黄金组合', detail: '玻色因撑底+胜肽加固，互补抗老' },
-  { from: 'pep', to: 'cer', type: 'compatible', label: '✅ 修复+抗老', detail: '抗老同时修复屏障，敏感肌友好' },
-  { from: 'ha', to: 'nia', type: 'compatible', label: '✅ 百搭', detail: '玻尿酸与所有成分兼容' },
-  { from: 'ha', to: 'ret', type: 'compatible', label: '✅ 百搭', detail: '保湿修复，降低刺激' },
-  { from: 'ha', to: 'vc', type: 'compatible', label: '✅ 百搭', detail: '基础保湿不冲突' },
-  { from: 'ha', to: 'aha', type: 'compatible', label: '✅ 百搭', detail: '酸后保湿必备' },
-  { from: 'cer', to: 'ret', type: 'compatible', label: '✅ 降刺激', detail: '神经酰胺修复屏障，减轻A醇脱皮' },
-  { from: 'vc', to: 'tra', type: 'compatible', label: '✅ 美白协同', detail: '不同通路抑制黑色素' },
-  { from: 'vc', to: 'nia', type: 'separate', label: '⚠️ 建议分开', detail: '高浓度下烟酰胺可能转化为烟酸刺激皮肤；低浓度可同用' },
-  { from: 'nia', to: 'aha', type: 'separate', label: '⚠️ 间隔30min', detail: '烟酰胺在强酸环境中可能分解为烟酸' },
-  { from: 'nia', to: 'bha', type: 'separate', label: '⚠️ 间隔30min', detail: '同上，避免低pH环境直接接触' },
-  { from: 'ret', to: 'vc', type: 'separate', label: '⚠️ 早C晚A', detail: '两者都是活性成分，分开时间使用效果更佳' },
-  { from: 'aha', to: 'bha', type: 'conflict', label: '❌ 双重刺激', detail: '两种酸叠加去角质，屏障损伤风险加倍' },
-  { from: 'ret', to: 'aha', type: 'conflict', label: '❌ 双重刺激', detail: 'A醇促代谢+果酸去角质，双重剥脱伤屏障' },
-  { from: 'ret', to: 'bha', type: 'conflict', label: '❌ 双重刺激', detail: '双重刺激性成分叠加，容易烂脸' }
-];
-
-const narrationScript = [
-  "闺蜜们！你有没有过这种经历——买了一堆精华，涂完发现脸红了？今天我用一张图，帮你搞懂护肤成分到底能不能一起涂！",
-  "先认识一下常见的12位主角。美白组的VC、烟酰胺、传明酸；酸类的果酸和水杨酸；抗老三巨头A醇、胜肽、玻色因；还有修复担当神经酰胺、保湿万能的玻尿酸，别忘了防晒！",
-  "好消息先说！有些成分在一起简直是1加1大于2。烟酰胺加A醇，这个组合被吹爆了！玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！",
-  "玻尿酸是万能百搭选手！它跟谁都不打架，放心叠。神经酰胺搭配A醇也是绝配，帮你把A醇的刺激拉下来一个档次。",
-  "黄牌警告区！VC和烟酰胺，网上说法很多——其实正常浓度下问题不大，但敏感肌建议早晚分开。A醇和VC也别一起用，经典早C晚A让它们各上各的班。",
-  "红牌来了！果酸加水杨酸，等于双重去角质，屏障直接裂开。A醇加果酸或水杨酸也是一样——两个刺激成分叠加，那是作死不是护肤！",
-  "实操方案来了！经典早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。想美白就传明酸加烟酰胺，想温和抗老就胜肽加玻色因。",
-  "这张成分关系图建议截图收藏！你在搭配成分时踩过什么坑？评论区告诉我！关注我，程序员用UML讲美妆，下一期更精彩！"
-];
-
-// ============ STATE ============
-const TOTAL_SCENES = 7;
-let canvas, ctx, rc;
-let W, H, dpr;
-let currentScene = -1;
-let autoMode = true;
-let ttsEnabled = true;
-let animTimer = null;
-let started = false;
-let zhVoice = null;
-let animFrame = null;
-let transitioning = false;
-let pendingScene = -1;
-
-let sceneAnim = {
-  items: [],
-  startTime: 0,
-  lineProgress: 0,
-  lines: [],
-  labels: [],
-  bgTint: null,
+// ==================== DATA ====================
+const ingredients = {
+  vc:{name:'原型VC',en:'Vitamin C',cat:'美白',color:'#FFB6C1',desc:'强效美白抗氧化，需低pH(pH<3.5)吸收，怕光怕氧化，建议晚上用',skin:'耐受肌',caution:'15%浓度已够，过高徒增刺激'},
+  nia:{name:'烟酰胺',en:'Niacinamide',cat:'美白',color:'#DDA0DD',desc:'万金油，美白抗炎修复保湿样样行，阻断黑色素转运',skin:'所有肤质',caution:'从2-3%建立耐受，最高10%'},
+  tra:{name:'传明酸',en:'Tranexamic Acid',cat:'美白',color:'#E6C9A8',desc:'抑制酪氨酸酶，从源头减少黑色素，温和淡斑',skin:'所有肤质',caution:'护肤品浓度2-5%'},
+  aha:{name:'果酸',en:'AHA',cat:'酸类',color:'#FFD700',desc:'水溶性去角质，提亮肤色改善粗糙',skin:'非敏感肌',caution:'使用后必须防晒！从5%开始'},
+  bha:{name:'水杨酸',en:'BHA',cat:'酸类',color:'#FFA500',desc:'脂溶性酸，深入毛孔溶油控油抗炎',skin:'油痘肌',caution:'2%为OTC上限'},
+  ret:{name:'A醇',en:'Retinol',cat:'抗老',color:'#FF6B6B',desc:'抗老金标准，促细胞代谢刺激胶原，需建立耐受',skin:'非敏感肌',caution:'孕妇禁用！从0.025%开始'},
+  pep:{name:'胜肽',en:'Peptides',cat:'抗老',color:'#98D8C8',desc:'信号肽促胶原、神经肽放松表情纹，温和高效',skin:'所有肤质',caution:'种类多按需选'},
+  pxy:{name:'玻色因',en:'Pro-Xylane',cat:'抗老',color:'#C9B1FF',desc:'欧莱雅专利，促糖胺聚糖合成，从真皮层撑起皮肤',skin:'所有肤质',caution:'需4-8周见效'},
+  cer:{name:'神经酰胺',en:'Ceramide',cat:'修复',color:'#A8D8EA',desc:'构成皮肤屏障的关键脂质，修复锁水，敏感肌救星',skin:'所有肤质',caution:'搭配胆固醇脂肪酸效果更佳'},
+  ha:{name:'玻尿酸',en:'Hyaluronic Acid',cat:'保湿',color:'#B5EAD7',desc:'万能保湿，大分子锁水小分子补水，与所有成分兼容',skin:'所有肤质',caution:'湿润环境下用，干脸涂反吸水'},
+  vcd:{name:'VC衍生物',en:'VC Derivatives',cat:'美白',color:'#FFB6C1',desc:'VC温和替代，不需低pH，白天也能用',skin:'所有肤质',caution:'效果比原型VC温和缓慢'},
+  sun:{name:'防晒',en:'Sunscreen',cat:'防护',color:'#FFEAA7',desc:'护肤最后一步也是最重要的一步！防光老化',skin:'所有肤质',caution:'SPF30+ PA+++最低标准'}
 };
 
-// ============ MOBILE LAYOUT CONSTANTS ============
-const BOX_W = 100, BOX_H = 55;
-const GAP = 12;
+// ==================== SCENES ====================
+// Each scene: { sentences: [...], actions: [...], bg: color|null }
+// sentence = text to speak
+// action = { after: sentenceIndex, do: function }
+// After each sentence finishes speaking, execute all actions with that index
 
-// ============ SCENE LAYOUTS ============
-function getSceneLayout(scene) {
-  const pad = 16;
-
-  if (scene === 1) {
-    // Vertical: groups stacked top to bottom
-    const groups = [
-      { label: '美白组', ids: ['vc', 'nia', 'tra'], color: '#FFB6C1' },
-      { label: '酸类 + 抗老', ids: ['aha', 'bha', 'ret'], color: '#FF6B6B' },
-      { label: '修复 · 保湿 · 防护', ids: ['pep', 'pxy', 'cer', 'ha', 'vcd', 'sun'], color: '#98D8C8' },
-    ];
-    const positions = {};
-    let y = 50; // start y
-    groups.forEach(g => {
-      const rows = Math.ceil(g.ids.length / 3);
-      g.startY = y;
-      // group label
-      y += 22;
-      // ingredient rows
-      g.ids.forEach((id, i) => {
-        const row = Math.floor(i / 3);
-        const col = i % 3;
-        const rowWidth = Math.min(g.ids.length - row * 3, 3);
-        const totalW = rowWidth * BOX_W + (rowWidth - 1) * GAP;
-        const startX = (W - totalW) / 2;
-        positions[id] = {
-          x: startX + col * (BOX_W + GAP) + BOX_W / 2,
-          y: y + row * (BOX_H + GAP) + BOX_H / 2,
-          group: g.label,
-          groupColor: g.color
-        };
-      });
-      y += rows * (BOX_H + GAP) + 20;
-    });
-    return { type: 'ingredients', positions, groups, height: Math.max(400, Math.min(800, y + 20)) };
+const scenes = [
+  // Scene 0: 认识成分
+  {
+    bg: null,
+    sentences: [
+      '先认识一下，常见的12位主角。',
+      '美白组：VC、烟酰胺、传明酸。',
+      '酸类加抗老：果酸、水杨酸、A醇。',
+      '修复保湿防护：胜肽、玻色因、神经酰胺、玻尿酸、VC衍生物、还有防晒！',
+      '防晒是最后一步，也是最重要的一步！'
+    ],
+    height: 680
+  },
+  // Scene 1: 神仙CP
+  {
+    bg: null,
+    sentences: [
+      '好消息先说！有些成分在一起，一加一大于二。',
+      '烟酰胺加A醇，这个组合被吹爆了！',
+      '玻色因加胜肽，一个从底层撑起皮肤，一个从结构加固，抗老黄金搭档！',
+      '传明酸加烟酰胺，双通路美白加倍。',
+      '神经酰胺搭配A醇，帮你把A醇的刺激拉下来一个档次。'
+    ],
+    height: 750
+  },
+  // Scene 2: 百搭选手
+  {
+    bg: null,
+    sentences: [
+      '玻尿酸，万能百搭选手！',
+      '它跟谁都不打架，放心叠。',
+      '搭配烟酰胺，没问题。搭配A醇，降低刺激。',
+      '搭配果酸，酸后保湿必备。搭配胜肽，也完全OK。',
+      '记住，玻尿酸是你的安全牌！'
+    ],
+    height: 700
+  },
+  // Scene 3: 黄牌警告
+  {
+    bg: 'rgba(255,200,50,0.06)',
+    sentences: [
+      '黄牌警告！',
+      'VC和烟酰胺，正常浓度下问题不大，但敏感肌建议早晚分开用。',
+      '烟酰胺不要和果酸、水杨酸直接混涂，间隔30分钟再用。',
+      'A醇和VC也别一起用，经典早C晚A，让它们各上各的班。'
+    ],
+    height: 680
+  },
+  // Scene 4: 红牌禁区
+  {
+    bg: 'rgba(255,80,80,0.08)',
+    sentences: [
+      '红牌来了！',
+      '果酸加水杨酸，等于双重去角质，屏障直接裂开。',
+      'A醇加果酸或水杨酸也是一样。',
+      '两个刺激成分叠加，那不是护肤，是作死！'
+    ],
+    height: 620
+  },
+  // Scene 5: 实用方案
+  {
+    bg: null,
+    sentences: [
+      '实操方案来了！',
+      '早C晚A：早上VC衍生物加防晒，晚上A醇加神经酰胺面霜。',
+      '美白攻坚：传明酸加烟酰胺，别忘了防晒。',
+      '温和抗老：胜肽加玻色因加神经酰胺。',
+      '刷酸修复：果酸或水杨酸选一个，然后神经酰胺修复。',
+      '截图收藏！评论区告诉我你踩过什么坑，关注我，程序员用UML讲美妆！'
+    ],
+    height: 750
   }
+];
 
-  if (scene === 2) {
-    // Compatible pairs - vertical list
-    const compatPairs = [
-      { ids: ['nia', 'ret'], label: '✅ 神仙CP', detail: '协同抗老美白' },
-      { ids: ['pxy', 'pep'], label: '✅ 抗老黄金组合', detail: '互补抗老' },
-      { ids: ['nia', 'tra'], label: '✅ 美白加倍', detail: '双通路淡斑' },
-      { ids: ['vc', 'tra'], label: '✅ 美白协同', detail: '不同通路' },
-      { ids: ['cer', 'ret'], label: '✅ 降刺激', detail: '修复屏障减轻脱皮' },
-    ];
-    const positions = {};
-    let y = 60;
-    compatPairs.forEach((p, i) => {
-      const cx = W / 2;
-      const rowH = BOX_H + 24;
-      positions[p.ids[0]] = { x: cx - BOX_W - 20, y: y };
-      positions[p.ids[1]] = { x: cx + BOX_W + 20, y: y };
-      y += rowH;
-    });
-    return { type: 'compatible', positions, pairs: compatPairs, height: Math.max(400, Math.min(800, y + 20)) };
-  }
+// ==================== STATE ====================
+let canvas, ctx, rc, W, H, dpr;
+let currentScene = -1, sentenceIdx = -1;
+let autoMode = true, ttsEnabled = true, started = false;
+let zhVoice = null, animFrameId = null;
+let sceneBoxes = [], sceneLines = [], sceneCards = [];
+let popups = [];
+let manualAdvanceTimer = null;
 
-  if (scene === 3) {
-    // HA hub - vertical star layout
-    const center = { x: W / 2, y: 80 };
-    const aroundIds = ['vc', 'nia', 'ret', 'aha', 'tra', 'bha', 'pep', 'pxy'];
-    const positions = { ha: center };
-    let y = 160;
-    aroundIds.forEach((id, i) => {
-      positions[id] = { x: W / 2, y: y };
-      y += 44;
-    });
-    return { type: 'hub', positions, hubId: 'ha', aroundIds, height: Math.max(400, Math.min(800, y + 30)) };
-  }
-
-  if (scene === 4) {
-    // Yellow warnings - vertical list
-    const warnPairs = [
-      { ids: ['vc', 'nia'], label: '⚠️ 建议分开', detail: '高浓度下可能刺激，敏感肌早晚分开' },
-      { ids: ['ret', 'vc'], label: '⚠️ 早C晚A', detail: '分开时间使用效果更佳' },
-      { ids: ['nia', 'aha'], label: '⚠️ 间隔30min', detail: '烟酰胺在强酸中可能分解' },
-      { ids: ['nia', 'bha'], label: '⚠️ 间隔30min', detail: '避免低pH环境直接接触' },
-    ];
-    const positions = {};
-    let y = 60;
-    warnPairs.forEach((p, i) => {
-      const cx = W / 2;
-      positions[p.ids[0]] = { x: cx - BOX_W - 20, y: y };
-      positions[p.ids[1]] = { x: cx + BOX_W + 20, y: y };
-      y += BOX_H + 36;
-    });
-    return { type: 'warning', positions, pairs: warnPairs, height: Math.max(400, Math.min(800, y + 20)) };
-  }
-
-  if (scene === 5) {
-    // Red conflicts - vertical list
-    const conflictPairs = [
-      { ids: ['aha', 'bha'], label: '❌ 双重刺激', detail: '双重去角质，屏障损伤加倍' },
-      { ids: ['ret', 'aha'], label: '❌ 双重刺激', detail: '双重剥脱伤屏障' },
-      { ids: ['ret', 'bha'], label: '❌ 双重刺激', detail: '双重刺激容易烂脸' },
-    ];
-    const positions = {};
-    let y = 70;
-    conflictPairs.forEach((p, i) => {
-      const cx = W / 2;
-      positions[p.ids[0]] = { x: cx - BOX_W - 20, y: y };
-      positions[p.ids[1]] = { x: cx + BOX_W + 20, y: y };
-      y += BOX_H + 50;
-    });
-    return { type: 'conflict', positions, pairs: conflictPairs, height: Math.max(400, Math.min(800, y + 20)) };
-  }
-
-  if (scene === 6) {
-    return { type: 'summary', height: 720 };
-  }
-
-  return { type: 'empty', height: 400 };
-}
-
-// ============ INIT ============
+// ==================== INIT ====================
 function init() {
   canvas = document.getElementById('mainCanvas');
   ctx = canvas.getContext('2d');
   rc = rough.canvas(canvas);
-
   resize();
-  window.addEventListener('resize', () => { resize(); renderCurrentScene(); });
+  window.addEventListener('resize', () => { resize(); if (currentScene < 0) drawCover(); });
 
-  const dotsEl = document.getElementById('sceneDots');
-  for (let i = 0; i < TOTAL_SCENES; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'scene-dot';
-    dot.onclick = () => goToScene(i);
-    dotsEl.appendChild(dot);
-  }
+  // Scene dots
+  const dots = document.getElementById('sceneDots');
+  scenes.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'scene-dot';
+    d.onclick = () => goToScene(i);
+    dots.appendChild(d);
+  });
 
+  // TTS voices
   if (window.speechSynthesis) {
-    function loadVoices() {
-      const voices = speechSynthesis.getVoices();
-      zhVoice = voices.find(v => v.lang === 'zh-CN' && v.localService)
-        || voices.find(v => v.lang.startsWith('zh') && v.localService)
-        || voices.find(v => v.lang === 'zh-CN')
-        || voices.find(v => v.lang.startsWith('zh'))
-        || null;
-    }
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
+    const loadV = () => {
+      const v = speechSynthesis.getVoices();
+      zhVoice = v.find(x => x.lang === 'zh-CN' && x.localService) || v.find(x => x.lang.startsWith('zh')) || null;
+    };
+    loadV(); speechSynthesis.onvoiceschanged = loadV;
   }
 
-  setCanvasSize(420);
-  drawCover();
+  setH(440); drawCover();
+  // Cover click handler
+  canvas.addEventListener('click', function coverHandler(e) {
+    if (started) { canvas.removeEventListener('click', coverHandler); return; }
+    const r = canvas.getBoundingClientRect();
+    const mx = (e.clientX - r.left) * (W / r.width);
+    const my = (e.clientY - r.top) * (H / r.height);
+    if (mx > W/2-80 && mx < W/2+80 && my > 230 && my < 290) {
+      canvas.removeEventListener('click', coverHandler);
+      startPresentation();
+    }
+  });
 }
 
 function resize() {
   dpr = window.devicePixelRatio || 1;
-  const container = document.getElementById('app');
-  W = Math.min(container.clientWidth - 24, 390);
+  W = Math.min(document.getElementById('app').clientWidth - 24, 390);
 }
 
-function setCanvasSize(h) {
+function setH(h) {
   H = h;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-// ============ COVER ============
+// ==================== COVER ====================
 function drawCover() {
-  setCanvasSize(420);
-  ctx.clearRect(0, 0, W, H);
-  drawBg('#FFF8F0');
-
+  setH(440); ctx.clearRect(0, 0, W, H);
+  fillBg('#FFF8F0');
   ctx.textAlign = 'center';
   ctx.fillStyle = '#6B4E71';
-  ctx.font = 'bold 22px "ZCOOL XiaoWei", serif';
-  ctx.fillText('成分能不能一起涂？', W / 2, 140);
-
-  ctx.fillStyle = '#A09090';
-  ctx.font = '13px "Noto Sans SC", sans-serif';
-  ctx.fillText('一张图告诉你 · 护肤成分兼容性全解析', W / 2, 170);
-
-  const btnW = 160, btnH = 48, btnX = W / 2 - btnW / 2, btnY = 230;
-  const grad = ctx.createLinearGradient(btnX, btnY, btnX + btnW, btnY + btnH);
-  grad.addColorStop(0, '#E8A0BF');
-  grad.addColorStop(1, '#B8A9C9');
-
-  rc.rectangle(btnX, btnY, btnW, btnH, {
-    fill: '#D8A0BF',
-    fillStyle: 'solid',
-    stroke: '#B889B9',
-    strokeWidth: 2,
-    roughness: 1.5
-  });
-  ctx.save();
-  ctx.globalAlpha = 0.6;
-  ctx.fillStyle = grad;
-  roundRectFill(ctx, btnX + 2, btnY + 2, btnW - 4, btnH - 4, 24);
-  ctx.restore();
-
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 15px "Noto Sans SC", sans-serif';
-  ctx.fillText('▶  开始讲解', W / 2, btnY + 30);
-
-  ctx.fillStyle = '#C0B0A0';
-  ctx.font = '11px "Noto Sans SC", sans-serif';
-  ctx.fillText('程序员用UML讲美妆系列 📐', W / 2, 340);
-
-  drawDecoCircles();
-}
-
-function drawDecoCircles() {
-  const colors = ['#FFB6C140', '#DDA0DD40', '#98D8C840', '#B8A9C940'];
-  const positions = [[40, 70], [W - 40, 60], [50, 350], [W - 50, 340]];
-  positions.forEach((p, i) => {
-    rc.circle(p[0], p[1], 25 + i * 8, {
-      stroke: colors[i],
-      fill: colors[i],
-      fillStyle: 'solid',
-      roughness: 2
-    });
+  ctx.font = 'bold 24px "ZCOOL XiaoWei",serif';
+  ctx.fillText('成分能不能一起涂？', W/2, 150);
+  ctx.fillStyle = '#A09090'; ctx.font = '13px "Noto Sans SC",sans-serif';
+  ctx.fillText('一张图告诉你 · 护肤成分兼容性全解析', W/2, 180);
+  // Button
+  const bw=160, bh=48, bx=W/2-bw/2, by=240;
+  rc.rectangle(bx, by, bw, bh, {fill:'#E8A0BF',fillStyle:'solid',stroke:'#C890B9',strokeWidth:2,roughness:1.5});
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 15px "Noto Sans SC",sans-serif';
+  ctx.fillText('▶  开始讲解', W/2, by+30);
+  ctx.fillStyle = '#C0B0A0'; ctx.font = '11px "Noto Sans SC",sans-serif';
+  ctx.fillText('程序员用UML讲美妆系列 📐', W/2, 360);
+  // Deco
+  ['#FFB6C130','#DDA0DD30','#98D8C830','#B8A9C930'].forEach((c,i) => {
+    rc.circle([50,W-50,50,W-50][i], [80,80,360,360][i], 20+i*8, {stroke:c,fill:c,fillStyle:'solid',roughness:2});
   });
 }
 
-// ============ SCENE TRANSITIONS ============
 function startPresentation() {
-  if (started) return;
-  started = true;
-  if (window.speechSynthesis) {
-    speechSynthesis.cancel();
-    const unlock = new SpeechSynthesisUtterance('');
-    unlock.volume = 0;
-    speechSynthesis.speak(unlock);
-  }
-  canvas.removeEventListener('click', startPresentation);
+  if (started) return; started = true;
+  if (window.speechSynthesis) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(''); u.volume=0; speechSynthesis.speak(u); }
   goToScene(0);
 }
 
-setTimeout(() => {
-  canvas.addEventListener('click', function coverClick(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = W / rect.width;
-    const scaleY = H / rect.height;
-    const mx = (e.clientX - rect.left) * scaleX;
-    const my = (e.clientY - rect.top) * scaleY;
-    if (mx > W / 2 - 80 && mx < W / 2 + 80 && my > 230 && my < 280) {
-      canvas.removeEventListener('click', coverClick);
-      startPresentation();
-    }
-  });
-}, 100);
-
-function goToScene(scene) {
-  if (transitioning || scene === currentScene) return;
-  if (scene < 0 || scene >= TOTAL_SCENES) return;
-
-  clearTimeout(animTimer);
-  if (animFrame) cancelAnimationFrame(animFrame);
-
-  pendingScene = scene;
-  transitioning = true;
-
+// ==================== SCENE MANAGEMENT ====================
+function goToScene(idx) {
+  if (idx < 0 || idx >= scenes.length) return;
+  speechSynthesis && speechSynthesis.cancel();
+  clearTimeout(manualAdvanceTimer);
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  currentScene = idx;
+  sentenceIdx = -1;
+  sceneBoxes = []; sceneLines = []; sceneCards = []; popups = [];
+  const sc = scenes[idx];
+  setH(sc.height);
+  updateUI();
+  // Fade in
   canvas.style.opacity = '0';
-
-  setTimeout(() => {
-    currentScene = scene;
-    updateSceneDots();
-    updateProgress();
-    setupScene(scene);
-    canvas.style.opacity = '1';
-    transitioning = false;
-
-    const nar = document.getElementById('narration');
-    if (scene < narrationScript.length) {
-      nar.style.display = 'block';
-      nar.textContent = narrationScript[scene];
-    }
-
-    if (ttsEnabled && scene < narrationScript.length) {
-      speak(narrationScript[scene]);
-    } else if (autoMode && scene < TOTAL_SCENES - 1) {
-      animTimer = setTimeout(() => goToScene(scene + 1), 5000);
-    }
-  }, 500);
+  setTimeout(() => { canvas.style.opacity = '1'; nextSentence(); }, 300);
 }
 
-function setupScene(scene) {
-  const layout = getSceneLayout(scene);
-  setCanvasSize(layout.height);
-
-  sceneAnim = { items: [], startTime: performance.now(), lineProgress: 0, lines: [], labels: [], bgTint: null };
-
-  if (layout.type === 'ingredients') {
-    const allIds = Object.keys(layout.positions);
-    allIds.forEach((id, i) => {
-      sceneAnim.items.push({
-        type: 'ingredient', id,
-        delay: i * 100,
-        pos: layout.positions[id],
-        done: false
-      });
-    });
-    layout.groups.forEach((g) => {
-      const rowWidth = Math.min(g.ids.length, 3);
-      const totalW = rowWidth * BOX_W + (rowWidth - 1) * GAP;
-      sceneAnim.items.push({
-        type: 'groupLabel', label: g.label, color: g.color,
-        x: W / 2,
-        y: g.startY + 14,
-        delay: 0,
-        done: false
-      });
-    });
-    animateScene();
+function nextSentence() {
+  sentenceIdx++;
+  const sc = scenes[currentScene];
+  if (sentenceIdx >= sc.sentences.length) {
+    // Scene done
+    if (autoMode && currentScene < scenes.length - 1) {
+      setTimeout(() => goToScene(currentScene + 1), 1200);
+    }
+    return;
   }
-
-  if (layout.type === 'compatible' || layout.type === 'warning' || layout.type === 'conflict') {
-    const isWarning = layout.type === 'warning';
-    const isConflict = layout.type === 'conflict';
-    if (isWarning) sceneAnim.bgTint = 'rgba(255,200,50,0.06)';
-    if (isConflict) sceneAnim.bgTint = 'rgba(255,80,80,0.08)';
-
-    layout.pairs.forEach((p, i) => {
-      const delay = i * 400;
-      sceneAnim.items.push({ type: 'ingredient', id: p.ids[0], delay, pos: layout.positions[p.ids[0]], done: false });
-      sceneAnim.items.push({ type: 'ingredient', id: p.ids[1], delay: delay + 80, pos: layout.positions[p.ids[1]], done: false });
-      sceneAnim.lines.push({
-        from: layout.positions[p.ids[0]],
-        to: layout.positions[p.ids[1]],
-        delay: delay + 200,
-        color: isConflict ? '#F44336' : isWarning ? '#FF9800' : '#4CAF50',
-        dash: (isConflict || isWarning),
-        label: p.label,
-        detail: p.detail,
-        done: false
-      });
+  // Execute actions for this sentence (from previous step → this step)
+  executeActionsForSentence(currentScene, sentenceIdx);
+  // Redraw
+  render();
+  // Speak
+  if (ttsEnabled) {
+    speak(sc.sentences[sentenceIdx], () => {
+      // After TTS finishes, advance
+      setTimeout(nextSentence, 600);
     });
-    animateScene();
-  }
-
-  if (layout.type === 'hub') {
-    sceneAnim.items.push({ type: 'ingredient', id: 'ha', delay: 0, pos: layout.positions.ha, big: true, done: false });
-    layout.aroundIds.forEach((id, i) => {
-      sceneAnim.items.push({ type: 'ingredient', id, delay: 150 + i * 80, pos: layout.positions[id], done: false });
-      sceneAnim.lines.push({
-        from: layout.positions.ha,
-        to: layout.positions[id],
-        delay: 200 + i * 80,
-        color: '#4CAF50',
-        dash: false,
-        label: '✅',
-        done: false
-      });
-    });
-    sceneAnim.labels.push({ text: '跟谁都不打架 🌟', x: W / 2, y: layout.height - 30, delay: 1000, done: false });
-    animateScene();
-  }
-
-  if (layout.type === 'summary') {
-    sceneAnim.items.push({ type: 'summaryCards', delay: 0, done: false });
-    animateScene();
+  } else {
+    // No TTS: auto advance after delay
+    clearTimeout(manualAdvanceTimer);
+    if (autoMode) {
+      manualAdvanceTimer = setTimeout(nextSentence, 2500);
+    }
   }
 }
 
-// ============ ANIMATION LOOP ============
-function animateScene() {
-  const now = performance.now();
-  let allDone = true;
+// ==================== SCENE ACTIONS ====================
+// These are executed when sentence N starts
+function executeActionsForSentence(scene, sentIdx) {
+  if (scene === 0) {
+    if (sentIdx === 0) addPopup('12位主角登场', 'center', '#6B4E71', 18, 2000);
+    if (sentIdx === 1) { addBox('vc', groupPos(0,0)); addBox('nia', groupPos(0,1)); addBox('tra', groupPos(0,2)); addPopup('美白组', 'above', '#FFB6C1', 14, 1800, W/2, groupPos(0,0).y - 45); }
+    if (sentIdx === 2) { addBox('aha', groupPos(1,0)); addBox('bha', groupPos(1,1)); addBox('ret', groupPos(1,2)); addPopup('酸类 + 抗老', 'above', '#FF6B6B', 14, 1800, W/2, groupPos(1,0).y - 45); }
+    if (sentIdx === 3) { ['pep','pxy','cer','ha','vcd','sun'].forEach((id,i) => addBox(id, restPos(i))); addPopup('修复·保湿·防护', 'above', '#98D8C8', 14, 1800, W/2, restPos(0).y - 45); }
+    if (sentIdx === 4) addPopup('防晒是最重要的一步！☀️', 'center', '#FF9800', 16, 2500);
+  }
+  if (scene === 1) {
+    if (sentIdx === 0) addPopup('好消息先说！✨', 'center', '#4CAF50', 18, 2000);
+    if (sentIdx === 1) { addBox('nia', pairPos(0,'L')); addBox('ret', pairPos(0,'R')); addLine(pairPos(0,'L'), pairPos(0,'R'), '#4CAF50', false, '✅ 神仙CP'); addPopup('被吹爆了！', 'pop', '#4CAF50', 15, 1500); }
+    if (sentIdx === 2) { addBox('pxy', pairPos(1,'L')); addBox('pep', pairPos(1,'R')); addLine(pairPos(1,'L'), pairPos(1,'R'), '#4CAF50', false, '✅ 抗老黄金组合'); }
+    if (sentIdx === 3) { addBox('tra', pairPos(2,'L')); addLine(sceneBoxes.find(b=>b.id==='nia').pos, pairPos(2,'L'), '#4CAF50', false, '✅ 美白加倍'); }
+    if (sentIdx === 4) { addBox('cer', pairPos(3,'L')); addLine(pairPos(3,'L'), sceneBoxes.find(b=>b.id==='ret').pos, '#4CAF50', false, '✅ 降刺激'); }
+  }
+  if (scene === 2) {
+    if (sentIdx === 0) { addBox('ha', hubCenter(), true); addPopup('万能百搭选手！', 'center', '#4CAF50', 18, 2000); }
+    if (sentIdx === 1) addPopup('跟谁都不打架', 'center', '#4CAF50', 16, 2000);
+    if (sentIdx === 2) { addBox('nia', hubItem(0)); addBox('ret', hubItem(1)); addLine(hubCenter(), hubItem(0), '#4CAF50'); addLine(hubCenter(), hubItem(1), '#4CAF50'); }
+    if (sentIdx === 3) { addBox('aha', hubItem(2)); addBox('pep', hubItem(3)); addLine(hubCenter(), hubItem(2), '#4CAF50'); addLine(hubCenter(), hubItem(3), '#4CAF50'); addPopup('酸后保湿必备', 'pop', '#4CAF50', 13, 1500); }
+    if (sentIdx === 4) addPopup('放心叠！✅', 'center', '#4CAF50', 20, 2000);
+  }
+  if (scene === 3) {
+    if (sentIdx === 0) addPopup('⚠️ 黄牌警告！', 'center', '#FF9800', 20, 2000);
+    if (sentIdx === 1) { addBox('vc', warnPos(0,'L')); addBox('nia', warnPos(0,'R')); addLine(warnPos(0,'L'), warnPos(0,'R'), '#FF9800', true, '⚠️ 建议分开'); addPopup('敏感肌早晚分开', 'pop', '#FF9800', 13, 2000); }
+    if (sentIdx === 2) { addBox('aha', warnPos(1,'L')); addLine(warnPos(1,'L'), sceneBoxes.find(b=>b.id==='nia').pos, '#FF9800', true, '⚠️ 间隔30min'); addBox('bha', warnPos(2,'L')); addLine(warnPos(2,'L'), sceneBoxes.find(b=>b.id==='nia').pos, '#FF9800', true, '⚠️ 间隔30min'); }
+    if (sentIdx === 3) { addBox('ret', warnPos(3,'L')); addLine(warnPos(3,'L'), sceneBoxes.find(b=>b.id==='vc').pos, '#FF9800', true, '⚠️ 早C晚A'); addPopup('各上各的班', 'center', '#FF9800', 16, 2000); }
+  }
+  if (scene === 4) {
+    if (sentIdx === 0) addPopup('❌ 红牌来了！', 'center', '#F44336', 22, 2000);
+    if (sentIdx === 1) { addBox('aha', dangerPos(0,'L')); addBox('bha', dangerPos(0,'R')); addLine(dangerPos(0,'L'), dangerPos(0,'R'), '#F44336', true, '❌ 双重刺激'); addPopup('屏障直接裂开', 'center', '#F44336', 16, 2000); }
+    if (sentIdx === 2) { addBox('ret', dangerPos(1,'L')); addLine(dangerPos(1,'L'), sceneBoxes.find(b=>b.id==='aha').pos, '#F44336', true, '❌ 双重刺激'); addLine(dangerPos(1,'L'), sceneBoxes.find(b=>b.id==='bha').pos, '#F44336', true, '❌ 双重刺激'); }
+    if (sentIdx === 3) addPopup('不是护肤，是作死！🙅', 'center', '#F44336', 18, 2500);
+  }
+  if (scene === 5) {
+    if (sentIdx === 0) addPopup('💡 实操方案', 'center', '#6B4E71', 20, 2000);
+    if (sentIdx >= 1 && sentIdx <= 4) addCard(sentIdx - 1);
+    if (sentIdx === 5) { addPopup('截图收藏！⭐', 'center', '#FF9800', 20, 2000); setTimeout(() => addPopup('评论区告诉我你踩过什么坑', 'center', '#6B4E71', 14, 2500), 1500); setTimeout(() => addPopup('关注我 | 程序员用UML讲美妆', 'center', '#B8A9C9', 13, 3000), 3500); }
+  }
+}
 
+// ==================== POSITION HELPERS ====================
+const BW = 100, BH = 55, GAP = 10;
+
+function groupPos(gi, ii) {
+  const y0 = 65 + gi * 200;
+  const cols = 3, totalW = cols * BW + (cols-1) * GAP;
+  const sx = (W - totalW) / 2;
+  return { x: sx + ii * (BW + GAP) + BW/2, y: y0 + BH/2 };
+}
+
+function restPos(i) {
+  const cols = 3, rows = 2, y0 = 475;
+  const row = Math.floor(i / cols), col = i % cols;
+  const totalW = cols * BW + (cols-1) * GAP;
+  const sx = (W - totalW) / 2;
+  return { x: sx + col * (BW + GAP) + BW/2, y: y0 + row * (BH + GAP) + BH/2 };
+}
+
+function pairPos(i, side) {
+  const y = 80 + i * 130;
+  return { x: side === 'L' ? W/2 - 75 : W/2 + 75, y };
+}
+
+function hubCenter() { return { x: W/2, y: 80 }; }
+function hubItem(i) { return { x: W/2, y: 180 + i * 100 }; }
+
+function warnPos(i, side) {
+  const y = 80 + i * 130;
+  return { x: side === 'L' ? W/2 - 75 : W/2 + 75, y };
+}
+
+function dangerPos(i, side) {
+  const y = 100 + i * 140;
+  return { x: side === 'L' ? W/2 - 75 : W/2 + 75, y };
+}
+
+// ==================== ELEMENT MANAGEMENT ====================
+function addBox(id, pos, big) {
+  if (sceneBoxes.find(b => b.id === id)) return; // already drawn
+  sceneBoxes.push({ id, pos, big: !!big, born: Date.now() });
+}
+
+function addLine(from, to, color, dash, label) {
+  sceneLines.push({ from, to, color: color||'#B8A9C9', dash: !!dash, label: label||'', born: Date.now() });
+}
+
+function addCard(idx) {
+  if (sceneCards.find(c => c.idx === idx)) return;
+  sceneCards.push({ idx, born: Date.now() });
+}
+
+function addPopup(text, style, color, fontSize, duration, x, y) {
+  if (style === 'center') { x = W/2; y = H * 0.12; }
+  else if (style === 'pop') { if (!x) x = W/2 + (Math.random()-.5)*40; if (!y) y = H * 0.45; }
+  else if (style === 'above') { /* x,y provided */ }
+  else { x = x || W/2; y = y || H * 0.5; }
+  popups.push({ text, x, y, style, color: color||'#6B4E71', fontSize: fontSize||16, duration: duration||2000, born: Date.now(), opacity: 0, scale: 0.3 });
+}
+
+// ==================== RENDER ====================
+function render() {
   ctx.clearRect(0, 0, W, H);
+  const sc = scenes[currentScene];
+  fillBg(sc && sc.bg ? '#FFF5EE' : '#FFF8F0');
+  if (sc && sc.bg) { ctx.fillStyle = sc.bg; ctx.fillRect(0, 0, W, H); }
 
-  if (sceneAnim.bgTint) {
-    ctx.fillStyle = sceneAnim.bgTint;
-    ctx.fillRect(0, 0, W, H);
-  }
-  drawBg(sceneAnim.bgTint ? '#FFF5EE' : '#FFF8F0');
-
-  sceneAnim.items.forEach(item => {
-    const elapsed = now - sceneAnim.startTime - item.delay;
-    if (elapsed < 0) { allDone = false; return; }
-
-    const t = Math.min(elapsed / 400, 1);
-    const ease = elasticOut(t);
-
-    if (item.type === 'ingredient') {
-      drawIngredientBox(item.id, item.pos, ease, item.big);
-    } else if (item.type === 'groupLabel') {
-      ctx.save();
-      ctx.globalAlpha = ease;
-      ctx.fillStyle = item.color;
-      ctx.font = 'bold 14px "Noto Sans SC", sans-serif';
+  // Lines
+  sceneLines.forEach(l => {
+    const age = Date.now() - l.born;
+    const t = Math.min(age / 400, 1);
+    const cx = l.from.x + (l.to.x - l.from.x) * t;
+    const cy = l.from.y + (l.to.y - l.from.y) * t;
+    ctx.save();
+    if (l.dash) ctx.setLineDash([6, 4]);
+    rc.line(l.from.x, l.from.y, cx, cy, { stroke: l.color, strokeWidth: 2, roughness: 1.2 });
+    ctx.restore();
+    // Label
+    if (l.label && t >= 1) {
+      const mx = (l.from.x + l.to.x) / 2, my = (l.from.y + l.to.y) / 2 - 12;
+      ctx.font = 'bold 12px "Noto Sans SC",sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(item.label, item.x, item.y);
-      ctx.restore();
-    } else if (item.type === 'summaryCards') {
-      drawSummaryCards(Math.min(elapsed / 600, 1));
+      const tw = ctx.measureText(l.label).width + 12;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      roundRect(ctx, mx-tw/2, my-10, tw, 20, 6); ctx.fill();
+      ctx.fillStyle = l.color;
+      ctx.fillText(l.label, mx, my+4);
     }
-
-    if (t < 1) allDone = false;
-    else item.done = true;
   });
 
-  sceneAnim.lines.forEach(line => {
-    const elapsed = now - sceneAnim.startTime - line.delay;
-    if (elapsed < 0) { allDone = false; return; }
-
-    const drawDuration = 400;
-    const t = Math.min(elapsed / drawDuration, 1);
-
-    drawAnimatedLine(line, t);
-
-    if (t >= 1 && line.label) {
-      const labelElapsed = elapsed - drawDuration;
-      const labelAlpha = Math.min(labelElapsed / 300, 1);
-      if (labelAlpha > 0) {
-        const mx = (line.from.x + line.to.x) / 2;
-        const my = (line.from.y + line.to.y) / 2;
-        ctx.save();
-        ctx.globalAlpha = labelAlpha;
-        // Label on line center
-        ctx.fillStyle = line.color;
-        ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.shadowColor = '#fff';
-        ctx.shadowBlur = 4;
-        ctx.fillText(line.label, mx, my - 4);
-        if (line.detail) {
-          ctx.font = '10px "Noto Sans SC", sans-serif';
-          ctx.fillStyle = '#888';
-          ctx.fillText(line.detail, mx, my + 12);
-        }
-        ctx.restore();
-      }
-      if (labelAlpha < 1) allDone = false;
-    }
-
-    if (t < 1) allDone = false;
-    else line.done = true;
+  // Boxes
+  sceneBoxes.forEach(b => {
+    const age = Date.now() - b.born;
+    const t = Math.min(age / 350, 1);
+    const ease = elasticOut(t);
+    drawBox(b, ease);
   });
 
-  sceneAnim.labels.forEach(lb => {
-    const elapsed = now - sceneAnim.startTime - lb.delay;
-    if (elapsed < 0) { allDone = false; return; }
-    const alpha = Math.min(elapsed / 400, 1);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = '#4CAF50';
-    ctx.font = 'bold 16px "ZCOOL XiaoWei", serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(lb.text, lb.x, lb.y);
-    ctx.restore();
-    if (alpha < 1) allDone = false;
-  });
-
-  if (!allDone) {
-    animFrame = requestAnimationFrame(animateScene);
-  }
-}
-
-// ============ DRAWING HELPERS ============
-function drawBg(color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(200,180,160,0.06)';
-  for (let x = 0; x < W; x += 20) {
-    for (let y = 0; y < H; y += 20) {
-      ctx.beginPath();
-      ctx.arc(x, y, 0.8, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-}
-
-function drawIngredientBox(id, pos, scale, big) {
-  const ing = ingredients.find(i => i.id === id);
-  if (!ing) return;
-
-  const s = big ? 1.25 : 1;
-  const bw = BOX_W * s, bh = BOX_H * s;
-
-  ctx.save();
-  ctx.translate(pos.x, pos.y);
-  ctx.scale(scale, scale);
-
-  if (big) {
-    ctx.shadowColor = ing.color;
-    ctx.shadowBlur = 15;
-  }
-
-  rc.rectangle(-bw / 2, -bh / 2, bw, bh, {
-    stroke: ing.color,
-    strokeWidth: big ? 2.5 : 2,
-    fill: ing.color + '25',
-    fillStyle: 'solid',
-    roughness: 1.5,
-    bowing: 2
-  });
-
-  ctx.shadowBlur = 0;
-
-  ctx.fillStyle = '#3D3D3D';
-  ctx.font = `bold ${big ? 15 : 14}px "Noto Sans SC", sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText(ing.name, 0, -6);
-
-  ctx.fillStyle = '#999';
-  ctx.font = `${big ? 10 : 9}px "Noto Sans SC", sans-serif`;
-  ctx.fillText(ing.en, 0, 9);
-
-  const tagW = ctx.measureText(ing.cat).width + 10;
-  ctx.fillStyle = ing.color + '50';
-  roundRectFill(ctx, -tagW / 2, 13, tagW, 15, 7);
-  ctx.fillStyle = '#666';
-  ctx.font = `${big ? 10 : 9}px "Noto Sans SC", sans-serif`;
-  ctx.fillText(ing.cat, 0, 24);
-
-  ctx.restore();
-}
-
-function drawAnimatedLine(line, t) {
-  const fx = line.from.x, fy = line.from.y;
-  const tx = line.to.x, ty = line.to.y;
-  const cx = fx + (tx - fx) * t;
-  const cy = fy + (ty - fy) * t;
-
-  ctx.save();
-  ctx.strokeStyle = line.color;
-  ctx.lineWidth = 2;
-  ctx.globalAlpha = 0.7;
-
-  if (line.dash) {
-    ctx.setLineDash([6, 4]);
-  }
-
-  rc.line(fx, fy, cx, cy, {
-    stroke: line.color,
-    strokeWidth: 2,
-    roughness: 1.2
-  });
-
-  ctx.restore();
-}
-
-function drawSummaryCards(progress) {
+  // Cards
   const recipes = [
-    { name: '🌅 早C晚A', desc: '早: VC衍生物 + 防晒\n晚: A醇 + 神经酰胺面霜', color: '#FFB6C1' },
-    { name: '✨ 美白攻坚', desc: '传明酸 + 烟酰胺\n→ 防晒（必须！）', color: '#DDA0DD' },
-    { name: '🌿 温和抗老', desc: '胜肽 + 玻色因\n+ 神经酰胺修复', color: '#98D8C8' },
-    { name: '💧 刷酸修复', desc: '果酸 或 水杨酸（选一）\n→ 神经酰胺修复', color: '#FFD700' }
+    { name:'🌅 早C晚A', desc:'早: VC衍生物+防晒 | 晚: A醇+神经酰胺面霜', color:'#FFB6C1' },
+    { name:'✨ 美白攻坚', desc:'传明酸+烟酰胺 → 防晒（必须！）', color:'#DDA0DD' },
+    { name:'🌿 温和抗老', desc:'胜肽+玻色因+神经酰胺', color:'#98D8C8' },
+    { name:'💧 刷酸修复', desc:'果酸或水杨酸（选一）→ 神经酰胺修复', color:'#FFD700' }
   ];
-
-  const cardW = W - 32;
-  const cardH = 100;
-  const gapY = 14;
-  const startX = 16;
-
-  ctx.save();
-  ctx.globalAlpha = progress;
-  ctx.fillStyle = '#6B4E71';
-  ctx.font = 'bold 18px "ZCOOL XiaoWei", serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('💡 实用搭配方案', W / 2, 35);
-
-  ctx.font = '12px "Noto Sans SC", sans-serif';
-  ctx.fillStyle = '#999';
-  ctx.fillText('根据你的需求选一套，别贪心全上！', W / 2, 58);
-
-  recipes.forEach((r, i) => {
-    const x = startX;
-    const y = 75 + i * (cardH + gapY);
-
-    const cardProgress = Math.min(Math.max((progress - i * 0.12) / 0.4, 0), 1);
-    if (cardProgress <= 0) return;
-
+  sceneCards.forEach(c => {
+    const age = Date.now() - c.born;
+    const t = Math.min(age / 400, 1);
+    const r = recipes[c.idx];
+    if (!r) return;
+    const cw = W - 32, ch = 80, cy = 80 + c.idx * (ch + 12);
     ctx.save();
-    ctx.globalAlpha = cardProgress;
-    const ease = elasticOut(Math.min(cardProgress * 1.2, 1));
-    ctx.translate(x + cardW / 2, y + cardH / 2);
-    ctx.scale(ease, ease);
-    ctx.translate(-(x + cardW / 2), -(y + cardH / 2));
-
-    rc.rectangle(x, y, cardW, cardH, {
-      stroke: r.color,
-      strokeWidth: 1.5,
-      fill: r.color + '15',
-      fillStyle: 'solid',
-      roughness: 1.5
-    });
-
-    ctx.fillStyle = '#3D3D3D';
-    ctx.font = 'bold 15px "Noto Sans SC", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(r.name, x + 15, y + 30);
-
-    ctx.fillStyle = '#777';
-    ctx.font = '12px "Noto Sans SC", sans-serif';
-    const lines = r.desc.split('\n');
-    lines.forEach((line, li) => {
-      ctx.fillText(line, x + 15, y + 52 + li * 20);
-    });
-
+    ctx.globalAlpha = t;
+    const e = elasticOut(Math.min(t * 1.2, 1));
+    ctx.translate(16 + cw/2, cy + ch/2); ctx.scale(e, e); ctx.translate(-(16+cw/2), -(cy+ch/2));
+    rc.rectangle(16, cy, cw, ch, { stroke: r.color, strokeWidth: 1.5, fill: r.color+'15', fillStyle: 'solid', roughness: 1.5 });
+    ctx.fillStyle = '#3D3D3D'; ctx.font = 'bold 15px "Noto Sans SC",sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(r.name, 30, cy + 28);
+    ctx.fillStyle = '#777'; ctx.font = '12px "Noto Sans SC",sans-serif';
+    ctx.fillText(r.desc, 30, cy + 52);
     ctx.restore();
   });
 
-  if (progress > 0.8) {
-    const footerAlpha = Math.min((progress - 0.8) / 0.2, 1);
+  // Popups
+  const now = Date.now();
+  popups = popups.filter(p => {
+    const age = now - p.born;
+    const prog = age / p.duration;
+    if (prog > 1) return false;
+    if (prog < 0.15) { p.opacity = prog / 0.15; p.scale = 0.3 + 0.7 * (prog / 0.15); }
+    else if (prog < 0.7) { p.opacity = 1; p.scale = 1; }
+    else { p.opacity = 1 - (prog - 0.7) / 0.3; }
     ctx.save();
-    ctx.globalAlpha = footerAlpha;
-    ctx.fillStyle = '#B8A9C9';
-    ctx.font = '13px "Noto Sans SC", sans-serif';
+    ctx.globalAlpha = Math.max(0, p.opacity);
+    ctx.translate(p.x, p.y); ctx.scale(p.scale, p.scale);
+    ctx.font = `bold ${p.fontSize}px "Noto Sans SC",sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('截图收藏这张图 💾', W / 2, H - 55);
-    ctx.fillStyle = '#C0B0A0';
-    ctx.font = '11px "Noto Sans SC", sans-serif';
-    ctx.fillText('关注我 · 程序员用UML讲美妆 · 下一期更精彩', W / 2, H - 30);
+    const lines = p.text.split('\n');
+    const mw = Math.max(...lines.map(l => ctx.measureText(l).width));
+    const pw = mw + 28, lh = p.fontSize + 6, ph = lines.length * lh + 16;
+    rc.rectangle(-pw/2, -ph/2, pw, ph, { stroke: p.color, fill: 'rgba(255,255,255,0.95)', fillStyle: 'solid', roughness: 1.2, strokeWidth: 2 });
+    ctx.fillStyle = p.color;
+    lines.forEach((l, i) => ctx.fillText(l, 0, -ph/2 + 16 + i * lh + p.fontSize/2));
     ctx.restore();
-  }
+    return true;
+  });
 
+  // Keep animating if popups or animations in progress
+  const hasAnim = sceneBoxes.some(b => Date.now() - b.born < 400) || sceneLines.some(l => Date.now() - l.born < 400) || popups.length > 0 || sceneCards.some(c => Date.now() - c.born < 400);
+  if (hasAnim) animFrameId = requestAnimationFrame(render);
+}
+
+// ==================== DRAW HELPERS ====================
+function drawBox(b, scale) {
+  const ing = ingredients[b.id]; if (!ing) return;
+  const s = b.big ? 1.2 : 1;
+  const bw = BW * s, bh = BH * s;
+  ctx.save();
+  ctx.translate(b.pos.x, b.pos.y); ctx.scale(scale, scale);
+  if (b.big) { ctx.shadowColor = ing.color; ctx.shadowBlur = 15; }
+  rc.rectangle(-bw/2, -bh/2, bw, bh, { stroke: ing.color, strokeWidth: b.big?2.5:2, fill: ing.color+'25', fillStyle: 'solid', roughness: 1.5, bowing: 2 });
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#3D3D3D'; ctx.font = `bold ${b.big?15:13}px "Noto Sans SC",sans-serif`; ctx.textAlign = 'center';
+  ctx.fillText(ing.name, 0, -6);
+  ctx.fillStyle = '#999'; ctx.font = `${b.big?10:9}px "Noto Sans SC",sans-serif`;
+  ctx.fillText(ing.en, 0, 8);
+  const tw = ctx.measureText(ing.cat).width + 10;
+  ctx.fillStyle = ing.color + '50'; roundRect(ctx, -tw/2, 12, tw, 15, 7); ctx.fill();
+  ctx.fillStyle = '#666'; ctx.font = '9px "Noto Sans SC",sans-serif'; ctx.fillText(ing.cat, 0, 23);
   ctx.restore();
 }
 
-function elasticOut(t) {
-  if (t === 0 || t === 1) return t;
-  return Math.pow(2, -10 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.3) + 1;
+function fillBg(color) {
+  ctx.fillStyle = color; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(200,180,160,0.06)';
+  for (let x = 0; x < W; x += 20) for (let y = 0; y < H; y += 20) { ctx.beginPath(); ctx.arc(x, y, 0.8, 0, Math.PI*2); ctx.fill(); }
 }
 
-function roundRectFill(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-  ctx.fill();
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
-function renderCurrentScene() {
-  if (currentScene < 0) { drawCover(); return; }
-  setupScene(currentScene);
+function elasticOut(t) { if (t===0||t===1) return t; return Math.pow(2,-10*t)*Math.sin((t-0.075)*2*Math.PI/0.3)+1; }
+
+// ==================== UI ====================
+function updateUI() {
+  document.querySelectorAll('.scene-dot').forEach((d,i) => d.classList.toggle('active', i === currentScene));
+  document.getElementById('progressFill').style.width = ((currentScene+1)/scenes.length*100)+'%';
 }
 
-// ============ UI UPDATES ============
-function updateSceneDots() {
-  document.querySelectorAll('.scene-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === currentScene);
-  });
-}
-
-function updateProgress() {
-  const pct = ((currentScene + 1) / TOTAL_SCENES) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-}
-
-// ============ CONTROLS ============
-function setMode(mode) {
-  autoMode = mode === 'auto';
+function setMode(m) {
+  autoMode = m === 'auto';
   document.getElementById('btnAuto').classList.toggle('active', autoMode);
   document.getElementById('btnManual').classList.toggle('active', !autoMode);
-  if (autoMode && started && !transitioning) {
-    clearTimeout(animTimer);
-    animTimer = setTimeout(() => {
-      if (currentScene < TOTAL_SCENES - 1) goToScene(currentScene + 1);
-    }, 3000);
-  } else {
-    clearTimeout(animTimer);
-  }
+  if (!autoMode) clearTimeout(manualAdvanceTimer);
 }
 
 function toggleTTS() {
   ttsEnabled = !ttsEnabled;
   document.getElementById('btnTTS').textContent = ttsEnabled ? '🔊' : '🔇';
-  document.getElementById('btnTTS').classList.toggle('active', ttsEnabled);
   if (!ttsEnabled) speechSynthesis.cancel();
 }
 
 function restart() {
-  speechSynthesis.cancel();
-  clearTimeout(animTimer);
-  if (animFrame) cancelAnimationFrame(animFrame);
-  currentScene = -1;
-  started = false;
-  transitioning = false;
-  canvas.style.opacity = '1';
-  document.getElementById('narration').style.display = 'none';
+  speechSynthesis && speechSynthesis.cancel();
+  clearTimeout(manualAdvanceTimer);
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  currentScene = -1; started = false;
   document.getElementById('progressFill').style.width = '0%';
-  updateSceneDots();
-  setCanvasSize(420);
-  drawCover();
-
-  setTimeout(() => {
-    canvas.addEventListener('click', function coverClick(e) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = W / rect.width;
-      const scaleY = H / rect.height;
-      const mx = (e.clientX - rect.left) * scaleX;
-      const my = (e.clientY - rect.top) * scaleY;
-      if (mx > W / 2 - 80 && mx < W / 2 + 80 && my > 230 && my < 280) {
-        canvas.removeEventListener('click', coverClick);
-        startPresentation();
-      }
-    });
-  }, 100);
+  document.querySelectorAll('.scene-dot').forEach(d => d.classList.remove('active'));
+  setH(440); drawCover();
+  // Re-add cover click handler
+  canvas.addEventListener('click', function coverHandler(e) {
+    if (started) { canvas.removeEventListener('click', coverHandler); return; }
+    const r = canvas.getBoundingClientRect();
+    const mx = (e.clientX - r.left) * (W / r.width);
+    const my = (e.clientY - r.top) * (H / r.height);
+    if (mx > W/2-80 && mx < W/2+80 && my > 230 && my < 290) {
+      canvas.removeEventListener('click', coverHandler);
+      startPresentation();
+    }
+  });
 }
 
-// ============ TTS ============
-function speak(text) {
-  if (!ttsEnabled || !window.speechSynthesis) return;
+// ==================== TTS ====================
+function speak(text, onDone) {
+  if (!ttsEnabled || !window.speechSynthesis) { onDone && onDone(); return; }
   speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'zh-CN';
-  utter.rate = 0.95;
-  utter.pitch = 1.1;
-  utter.volume = 1;
-  if (zhVoice) utter.voice = zhVoice;
-  utter.onend = () => {
-    if (autoMode && started && !transitioning) {
-      clearTimeout(animTimer);
-      animTimer = setTimeout(() => {
-        if (currentScene < TOTAL_SCENES - 1) goToScene(currentScene + 1);
-      }, 1500);
-    }
-  };
-  utter.onerror = () => {
-    if (autoMode && started && !transitioning) {
-      clearTimeout(animTimer);
-      animTimer = setTimeout(() => {
-        if (currentScene < TOTAL_SCENES - 1) goToScene(currentScene + 1);
-      }, 2000);
-    }
-  };
-  speechSynthesis.speak(utter);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN'; u.rate = 0.95; u.pitch = 1.1;
+  if (zhVoice) u.voice = zhVoice;
+  u.onend = onDone;
+  u.onerror = onDone;
+  speechSynthesis.speak(u);
 }
 
-// ============ START ============
+// ==================== START ====================
 window.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
